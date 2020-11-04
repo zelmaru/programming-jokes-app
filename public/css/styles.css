@@ -1,0 +1,120 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200;400;600;800&display=swap');
+
+
+body {
+  font-weight: 600;
+  background-color: #fff;
+  font-family: 'Inconsolata', monospace;
+  position: relative;
+  min-height: 100vh;
+}
+
+main {
+  padding-bottom: 25rem;    /* Footer height */
+}
+
+.jumbotron {
+  background: transparent !important;
+}
+
+.centered {
+    padding-top: 3rem;
+    text-align: center;
+}
+
+.joke-text {
+  background-color: #343A40;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 600;
+  padding: 1rem;
+  text-align: center;
+  /* width: 50vw; */
+}
+
+.joke-text p {
+  white-space: pre-line;
+}
+
+.joke-text:focus {
+  background-color: #343A40;
+  color: #fff;
+}
+
+.icon-btns {
+  border: none;
+  background-color: transparent;
+}
+
+.icon-btns:focus {
+outline: none;
+}
+
+.icon-btns-icons {
+  color: #fff;
+  opacity: 0.7;
+}
+
+.icon-btns-icons:hover {
+  color: #FFC107;
+  opacity: 0.9;
+}
+
+
+.link-styled {
+  text-decoration: underline;
+  color: #212529;
+}
+
+footer {
+  position: absolute;
+   bottom: 0;
+   width: 100%;
+   height: 20rem;
+}
+
+
+.newsletter-form {
+  background: #FFC107;
+}
+
+@media screen and (max-width: 800px) {
+  main {
+    padding-bottom: 35rem;
+  }
+  footer {
+    height: 35rem;
+  }
+}
+
+
+@media screen and (max-width: 600px) {
+  main {
+    padding-bottom: 38rem;
+  }
+  footer {
+    height: 38rem;
+  }
+}
+
+/*
+@media screen and (max-width: 300px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+  .container {
+    max-width: 100%;
+    padding-right: 0;
+    padding-left: 0;
+  }
+  .jumbotron {
+    padding: 0;
+  }
+  main {
+    padding-bottom: 45rem;
+  }
+  footer {
+    height: 45rem;
+  }
+} */

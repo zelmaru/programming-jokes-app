@@ -1,0 +1,51 @@
+<%- include('partials/header', {currentUser: currentUser}) %>
+
+  <i class="fas fa-user-plus fa-6x"></i>
+  <h1>Register</h1>
+  <p>Register and be able to submit jokes!</p>
+  <hr>
+
+  <div class="row">
+    <div class="col-lg-8 mb-3">
+      <div class="card">
+        <div class="card-body  text-left">
+
+          <form action="/register" method="POST">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" name="username" placeholder="Your Email">
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" name="password" placeholder="Your Password">
+            </div>
+            <button type="submit" class="btn btn-lg btn-warning">Login</button>
+            <p class="pl-2 d-inline">Do you already have an account? <a class="link-styled" href="/login">Log in</a></p>
+          </form>
+
+
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card">
+        <div class="card-body">
+          <a class="btn btn-block btn-social btn-google" href="/auth/google" role="button">
+            <i class="fab fa-google"></i>
+            Sign up with Google
+          </a>
+        </div>
+        <div class="card-body">
+          <a class="btn btn-block btn-social btn-facebook" href="/auth/facebook" role="button">
+            <i class="fab fa-facebook-f"></i>
+            Sign up with Facebook
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+<%- include('partials/footer') %>
