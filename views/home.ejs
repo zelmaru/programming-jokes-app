@@ -7,28 +7,30 @@
     <hr>
     <div class="jumbotron centered">
       <div class="container">
-        <% usersWithJokes.forEach((user) => { %>
-        <%  let arrayOfJokes = user.jokes %>
-        <% arrayOfJokes.forEach((joke) => {  %>
-          <div class="joke-text m-4 p-4">
-            <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke %></p>
-            <form class="flag-inappropriate" action="/inaproppriate" method="post">
-              <button class="float-right icon-btns" type="submit" name="flag-btn"  data-toggle="tooltip" data-placement="bottom" title="Flag as inappropriate"><i class="far fa-flag icon-btns-icons"></i></button>
-            </form>
-            <form class="like-heart" action="/favourites" method="post">
-              <button class="float-right icon-btns" type="submit" name="like-btn"data-toggle="tooltip" data-placement="bottom" title="Add to favourites"><i class="far fa-heart icon-btns-icons"></i></button>
-            </form>
-          </div>
 
-        <%  }) %>
-        <% }) %>
+    <!-- Include an if-else statement for the case if there are no jokes posted yet (else) -->
+    <!-- the user after classical login did not get rendered the page, because the usersWithJokes was undefined -->
+      <%  if (typeof usersWithJokes != "undefined") { %>
+        <!-- Loop through an array of jokes to get the contents -->
+          <% usersWithJokes.forEach((user) => { %>
+            <%  let arrayOfJokes = user.jokes %>
+            <% arrayOfJokes.forEach((joke) => {  %>
+              <div class="joke-text m-4 p-4">
+                <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke %></p>
+                <form class="flag-inappropriate" action="/inaproppriate" method="post">
+                  <button class="float-right icon-btns" type="submit" name="flag-btn"  data-toggle="tooltip" data-placement="bottom" title="Flag as inappropriate"><i class="far fa-flag icon-btns-icons"></i></button>
+                </form>
+                <form class="like-heart" action="/favourites" method="post">
+                  <button class="float-right icon-btns" type="submit" name="like-btn"data-toggle="tooltip" data-placement="bottom" title="Add to favourites"><i class="far fa-heart icon-btns-icons"></i></button>
+                </form>
+              </div>
+              <%  }) %>
+              <% }) %>
+    <%    } else { %>
+          <p>No jokes yet. Be the first to post.</p>
+      <%  } %>
       </div>
     </div>
-
-
-    <!-- <a class="btn btn-light btn-lg" href="/register" role="button">Register</a>
-    <a class="btn btn-dark btn-lg" href="/login" role="button">Login</a> -->
-
 
 
 <%- include('partials/footer') %>

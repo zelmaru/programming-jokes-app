@@ -10,6 +10,7 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 const FacebookStrategy = require('passport-facebook').Strategy;
+const { check, validationResult } = require('express-validator');
 
 const Schema = mongoose.Schema;
 const app = express();
@@ -18,11 +19,12 @@ app.use(express.static(__dirname + "/public"));
 // app.use(express.json());
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+const urlencodedParser = bodyParser.urlencoded({extended: false});
 
 // initialize express-session code below app.use and above mongoose.connect
 
 app.use(session({
-  secret: 'Blah blah blah.',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
@@ -38,7 +40,9 @@ app.use(function (req, res, next) {
 mongoose.connect('mongodb://localhost:27017/jokesDB', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true});
 
 const jokeSchema = new Schema({
-  joke: String
+  joke: {type: String, required: true},
+  liked: {type: Boolean, default: false},
+  flagged: {type: Boolean, default: false}
 });
 
 const Joke = new mongoose.model('Joke', jokeSchema)
@@ -110,10 +114,12 @@ passport.use(new FacebookStrategy({
 /////////////////////// root route /////////////////////////////////
 
 app.get('/', (req, res) => {
+  // find all posted jokes and render them
   User.find({"jokes": {$ne: null}}, (err, foundUsers) => {
     if (err) {
       console.log(err);
     } else {
+      console.log(foundUsers);
       res.render('home', {usersWithJokes: foundUsers});
     }
   })
@@ -154,14 +160,28 @@ app.get('/register', (req, res) => {
 
 /////////////////////// registration - classical  /////////////////////////////////
 
-app.post('/register', (req, res) => {
+app.post('/register', urlencodedParser, [
+  check('username', 'Email must be a valid e-mail address')
+  .isEmail()
+  .normalizeEmail(),
+  check('password', 'Password must be at least 6 characters long')
+  .isLength({min: 5})
+
+], (req, res) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    // return res.status(422).jsonp(errors.array());
+    const alert = errors.array();
+    res.render('register', {alert: alert})
+  }
   User.register({ username: req.body.username}, req.body.password, (err, user) => {
     if (err) {
       console.log(err);
       res.redirect('/register');
     } else {
       passport.authenticate('local')(req, res, () => { // the callback is only triggered if the auth was successful
-        res.redirect('/');
+        res.redirect('/submit');
       })
     }
   }
@@ -170,20 +190,32 @@ app.post('/register', (req, res) => {
 
 /////////////////////// login - classical  /////////////////////////////////
 
-app.post('/login', (req, res) => {
-  const username = req.body.username;
-  const password = req.body.password;
+app.post('/login', urlencodedParser, [
+  check('username', 'Email must be a valid e-mail address')
+  .isEmail()
+  .normalizeEmail(),
+  check('password', 'Password must be at least 6 characters long')
+  .isLength({min: 5})
+  ], (req, res) => {
 
-  const user = new User({
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    // return res.status(422).jsonp(errors.array());
+    const alert = errors.array();
+    res.render('login', {alert: alert})
+  }
+    const user = new User({
     username: req.body.username,
     password: req.body.password
   })
   req.login(user, (err) => {
     if (err) {
       console.log(err);
+      // const message = "Invalid e-mail or password";
+      // res.render('login', {alert: message})
     } else {
       passport.authenticate('local')(req, res, () => { // authenticate the user
-        res.render('home')
+        res.redirect('/submit');
       });
     }
   });
@@ -201,7 +233,7 @@ app.get('/submit', (req, res) => {
 
 app.post('/submit', (req, res) => {
   const joke = new Joke ({
-    joke: req.body.joke
+    joke: req.body.textarea
   });
   User.findById(req.user.id, (err, foundUser) => {
     if (err) {
@@ -211,6 +243,7 @@ app.post('/submit', (req, res) => {
         foundUser.jokes.push(joke);
         foundUser.save(()=> {
           res.redirect('/');
+
         })
       }
     }
@@ -222,51 +255,65 @@ app.post('/submit', (req, res) => {
 /////////////////////// Edit your jokes  /////////////////////////////////
 
 app.get('/edit', (req, res) => {
-
-  User.findById(req.user._id, (err, foundUser) => {
-    if (err) {
-      console.log(err);
-    } else {
-      if (foundUser) {
-        res.render('edit', {postedJokes: foundUser.jokes});
+  if (req.isAuthenticated()) {
+    User.findById(req.user._id, (err, foundUser) => {
+      if (err) {
+        console.log(err);
+      } else {
+        if (foundUser) {
+          res.render('edit', {postedJokes: foundUser.jokes});
+        }
       }
-    }
-  })
-});
+    })
+  } else {
+    res.redirect('/login')
+  }
+  });
+
 
 // ---------- update --------------
 
 app.post('/update', (req, res) => {
-  const editJokeId = req.body.update;
-  res.redirect('/update/' + req.body.update);
-});
-
-
-app.get('/update/:jokeId', (req, res) => {
-const jokeId = req.params.jokeId;
-User.findById({_id: req.user._id, "jokes._id": jokeId}, {"jokes.joke": 1}, (err, foundJoke) => {
-  if (err) {
-    console.log(err);
+  if (req.isAuthenticated()) {
+      const editedText = req.body.textarea;
+      const jokeId = req.body.save;
+      User.findOneAndUpdate(
+        {_id: req.user._id},
+        {$set: {"jokes.$[el].joke": editedText}},
+        {
+          arrayFilters: [{"el._id": jokeId}],
+          new: true
+        }, (err, foundJoke) => {
+        if (err) {
+          console.log(err);
+        } else {
+          res.redirect("/edit");
+        }
+      });
+      // res.redirect('/update/' + editJokeId);
   } else {
-    console.log(foundJoke);
-    res.render('update', {jokeToEdit: foundJoke});
-    }
+    res.redirect('/login');
+  }
 });
-});
+
 
 
 
 // ---------- delete --------------WORKING
 
 app.post('/delete', (req, res) => {
+  if (req.isAuthenticated()) {
     const jokeToDeleteId = req.body.delete;
-          User.findOneAndUpdate({_id: req.user._id}, {$pull: {jokes: {_id: jokeToDeleteId}}}, (err, foundJoke) => { // findOne corresponds to finding a list (therefore findList)
-          if (err) {
-            console.log(err);
-          } else {
-            res.redirect("/edit");
-          }
-        });
+    User.findOneAndUpdate({_id: req.user._id}, {$pull: {jokes: {_id: jokeToDeleteId}}}, (err, foundJoke) => { // findOne corresponds to finding a list (therefore findList)
+      if (err) {
+        console.log(err);
+      } else {
+        res.redirect("/edit");
+      }
+    });
+      } else {
+    res.redirect('/login')
+  }
       });
 
 
@@ -322,16 +369,28 @@ app.post('/search', (req, res) => {
 /////////////////////// on-click user actions /////////////////////////////////
 
 app.get('/favourites', (req, res) => {
-res.render('favourites');
+  if (req.isAuthenticated()) {
+    res.render('favourites');
+      } else {
+    res.redirect('/login')
+  }
 });
 
 app.post('/favourites', (req, res) => {
-// add post on first click, remove on second
+if (req.isAuthenticated()) {
+  // add post on first click, remove on second
+    } else {
+  res.redirect('/login')
+}
 });
 
 
 app.post('/inappropriate', (req, res) => {
-  // add post on first click, remove on second
+  if (req.isAuthenticated()) {
+    // add post on first click, remove on second
+      } else {
+    res.redirect('/login')
+  }
 });
 
 
@@ -342,12 +401,21 @@ app.post('/inappropriate', (req, res) => {
 /////////////////////// account settings /////////////////////////////////
 
 app.get('/settings', (req, res) => {
-res.render('settings');
+  if (req.isAuthenticated()) {
+    res.render('settings');
+    // add post on first click, remove on second
+      } else {
+    res.redirect('/login')
+  }
 });
 
 app.post('/settings', (req, res) => {
-  // delete Account
-  // add/ change email, username and password
+  if (req.isAuthenticated()) {
+    // delete Account
+    // add/ change email, username and password
+      } else {
+    res.redirect('/login')
+  }
 });
 
 
@@ -359,8 +427,13 @@ app.get('/terms', (req, res) => {
 })
 
 app.get('/logout', (req, res) => {
-  req.logout();
-  res.redirect('/');
+  if (req.isAuthenticated()) {
+    req.logout();
+    res.redirect('/');
+         } else {
+    res.redirect('/login')
+  }
+
 })
 
 

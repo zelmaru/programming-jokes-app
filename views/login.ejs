@@ -10,8 +10,21 @@
       <div class="card">
         <div class="card-body text-left">
 
-          <!-- Makes POST request to /login route -->
-          <form action="/login" method="POST">
+          <!-- dismissable alert for express-validator: loop through the array of alerts -->
+          <%  if (typeof alert != "undefined") { %>
+          <%  alert.forEach((error) => { %>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <%= error.msg %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <%  }) %>
+          <%  } %>
+
+
+          <!-- set the novalidate attribute to an HTML form to unblock express-validator's alerts-->
+          <form action="/login" method="POST" novalidate>
             <div class="form-group">
               <label for="email">Email</label>
               <input type="email" class="form-control" name="username" placeholder="Your Email">
