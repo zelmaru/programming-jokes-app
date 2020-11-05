@@ -10,7 +10,11 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 const FacebookStrategy = require('passport-facebook').Strategy;
-const { check, validationResult } = require('express-validator');
+const {
+  check,
+  validationResult
+} = require('express-validator');
+// const { body } = require('express-validator');
 
 const Schema = mongoose.Schema;
 const app = express();
@@ -18,8 +22,12 @@ const app = express();
 app.use(express.static(__dirname + "/public"));
 // app.use(express.json());
 app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({extended: true}));
-const urlencodedParser = bodyParser.urlencoded({extended: false});
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+const urlencodedParser = bodyParser.urlencoded({
+  extended: false
+});
 
 // initialize express-session code below app.use and above mongoose.connect
 
@@ -29,20 +37,33 @@ app.use(session({
   saveUninitialized: false
 }));
 
-app.use(passport.initialize());  // initialize passport package
-app.use(passport.session());  // use passport for dealing with the sessions
+app.use(passport.initialize()); // initialize passport package
+app.use(passport.session()); // use passport for dealing with the sessions
 
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   res.locals.currentUser = req.user;
   next()
 })
 
-mongoose.connect('mongodb://localhost:27017/jokesDB', {useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true});
+mongoose.connect('mongodb://localhost:27017/jokesDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useCreateIndex: true
+});
 
 const jokeSchema = new Schema({
-  joke: {type: String, required: true},
-  liked: {type: Boolean, default: false},
-  flagged: {type: Boolean, default: false}
+  joke: {
+    type: String,
+    required: true
+  },
+  liked: {
+    type: Boolean,
+    default: false
+  },
+  flagged: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const Joke = new mongoose.model('Joke', jokeSchema)
@@ -90,7 +111,9 @@ passport.use(new GoogleStrategy({
   },
   function(accessToken, refreshToken, profile, cb) {
     console.log(profile);
-    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+    User.findOrCreate({
+      googleId: profile.id
+    }, function(err, user) {
       return cb(err, user);
     });
   }
@@ -104,8 +127,12 @@ passport.use(new FacebookStrategy({
     enableProof: true
   },
   function(accessToken, refreshToken, profile, done) {
-    User.findOrCreate({facebookId: profile.id}, function(err, user) {
-      if (err) { return done(err); }
+    User.findOrCreate({
+      facebookId: profile.id
+    }, function(err, user) {
+      if (err) {
+        return done(err);
+      }
       done(null, user);
     });
   }
@@ -115,12 +142,18 @@ passport.use(new FacebookStrategy({
 
 app.get('/', (req, res) => {
   // find all posted jokes and render them
-  User.find({"jokes": {$ne: null}}, (err, foundUsers) => {
+  User.find({
+    "jokes": {
+      $ne: null
+    }
+  }, (err, foundUsers) => {
     if (err) {
       console.log(err);
     } else {
       console.log(foundUsers);
-      res.render('home', {usersWithJokes: foundUsers});
+      res.render('home', {
+        usersWithJokes: foundUsers
+      });
     }
   })
 });
@@ -128,30 +161,36 @@ app.get('/', (req, res) => {
 /////////////////////// Google auth /////////////////////////////////
 
 app.get('/auth/google',
-  passport.authenticate('google', { scope: ['profile'] }));
+  passport.authenticate('google', {
+    scope: ['profile']
+  }));
 
-  app.get('/auth/google/jokes',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+app.get('/auth/google/jokes',
+  passport.authenticate('google', {
+    failureRedirect: '/login'
+  }),
   function(req, res) {
     res.redirect('/submit');
   });
 
-  /////////////////////// Facebook auth /////////////////////////////////
+/////////////////////// Facebook auth /////////////////////////////////
 
-  app.get('/auth/facebook',
-   passport.authenticate('facebook'));
+app.get('/auth/facebook',
+  passport.authenticate('facebook'));
 
 app.get('/auth/facebook/jokes',
-  passport.authenticate('facebook', { failureRedirect: '/login' }),
-function(req, res) {
-  res.redirect('/submit');
-});
+  passport.authenticate('facebook', {
+    failureRedirect: '/login'
+  }),
+  function(req, res) {
+    res.redirect('/submit');
+  });
 
 /////////////////////// Login/register routes /////////////////////////////////
 
 app.get('/login', (req, res) => {
-    res.render('login');
-  });
+  res.render('login');
+});
 
 
 app.get('/register', (req, res) => {
@@ -160,32 +199,82 @@ app.get('/register', (req, res) => {
 
 /////////////////////// registration - classical  /////////////////////////////////
 
-app.post('/register', urlencodedParser, [
-  check('username', 'Email must be a valid e-mail address')
-  .isEmail()
-  .normalizeEmail(),
-  check('password', 'Password must be at least 6 characters long')
-  .isLength({min: 5})
+// validation using Express-validator:
+// app.post('/register', (req, res) => {
+//   User.find({email: req.body.username}, (err, userFound) => {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       if (userFound) {
+//         const message = "Email already in use";
+//         res.render('register', {
+//           message: message
+//         });
+//       } else {
+//         console.log("no user");
+//       }
+//     }
+//   });
+// },
+
+ app.post('/register', urlencodedParser, [
+  // check if username is an email
+  check('username')
+  .custom(async function(value){
+			var user = await User.find({email:value})
+			return user.length == 0;
+		})
+		.withMessage('Email already exists')
+//   .custom(username => {
+//    User.findOne({email: username}).exec(function(user) {
+//        if (!user) {
+//            return true;
+//        }
+//        else{
+//            return false;
+//        }
+//     })
+// }).withMessage('Email already in use.')
+  .normalizeEmail()
+  .isEmail().withMessage('Email must be a valid e-mail address'),
+  // check if password confirmation matches the passsword
+  check('password')
+  .isLength({
+    min: 5
+  }).withMessage('Password must be at least 6 characters long')
+  .custom((value, {
+    req
+  }) => {
+    if (value !== req.body.passwordCheck) {
+      throw new Error('Password confirmation is incorrect');
+    } else {
+      return true;
+    }
+  })
+  // check the pasword length
 
 ], (req, res) => {
-
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // return res.status(422).jsonp(errors.array());
     const alert = errors.array();
-    res.render('register', {alert: alert})
+    res.render('register', {
+      alert: alert
+    });
   }
-  User.register({ username: req.body.username}, req.body.password, (err, user) => {
+  User.register({
+    username: req.body.username
+  }, req.body.password, (err, user) => {
     if (err) {
       console.log(err);
-      res.redirect('/register');
+      // if this e-mail is already taken, alert (err.message):
+      res.render('register', {message: err.message});
     } else {
-      passport.authenticate('local')(req, res, () => { // the callback is only triggered if the auth was successful
+      // the callback is only triggered if the auth was successful
+      passport.authenticate('local')(req, res, () => {
         res.redirect('/submit');
       })
     }
-  }
-)
+  })
 });
 
 /////////////////////// login - classical  /////////////////////////////////
@@ -195,16 +284,20 @@ app.post('/login', urlencodedParser, [
   .isEmail()
   .normalizeEmail(),
   check('password', 'Password must be at least 6 characters long')
-  .isLength({min: 5})
-  ], (req, res) => {
+  .isLength({
+    min: 5
+  })
+], (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     // return res.status(422).jsonp(errors.array());
     const alert = errors.array();
-    res.render('login', {alert: alert})
+    res.render('login', {
+      alert: alert
+    })
   }
-    const user = new User({
+  const user = new User({
     username: req.body.username,
     password: req.body.password
   })
@@ -232,7 +325,7 @@ app.get('/submit', (req, res) => {
 });
 
 app.post('/submit', (req, res) => {
-  const joke = new Joke ({
+  const joke = new Joke({
     joke: req.body.textarea
   });
   User.findById(req.user.id, (err, foundUser) => {
@@ -241,7 +334,7 @@ app.post('/submit', (req, res) => {
     } else {
       if (foundUser) {
         foundUser.jokes.push(joke);
-        foundUser.save(()=> {
+        foundUser.save(() => {
           res.redirect('/');
 
         })
@@ -261,36 +354,43 @@ app.get('/edit', (req, res) => {
         console.log(err);
       } else {
         if (foundUser) {
-          res.render('edit', {postedJokes: foundUser.jokes});
+          res.render('edit', {
+            postedJokes: foundUser.jokes
+          });
         }
       }
     })
   } else {
     res.redirect('/login')
   }
-  });
+});
 
 
 // ---------- update --------------
 
 app.post('/update', (req, res) => {
   if (req.isAuthenticated()) {
-      const editedText = req.body.textarea;
-      const jokeId = req.body.save;
-      User.findOneAndUpdate(
-        {_id: req.user._id},
-        {$set: {"jokes.$[el].joke": editedText}},
-        {
-          arrayFilters: [{"el._id": jokeId}],
-          new: true
-        }, (err, foundJoke) => {
-        if (err) {
-          console.log(err);
-        } else {
-          res.redirect("/edit");
-        }
-      });
-      // res.redirect('/update/' + editJokeId);
+    const editedText = req.body.textarea;
+    const jokeId = req.body.save;
+    User.findOneAndUpdate({
+      _id: req.user._id
+    }, {
+      $set: {
+        "jokes.$[el].joke": editedText
+      }
+    }, {
+      arrayFilters: [{
+        "el._id": jokeId
+      }],
+      new: true
+    }, (err, foundJoke) => {
+      if (err) {
+        console.log(err);
+      } else {
+        res.redirect("/edit");
+      }
+    });
+    // res.redirect('/update/' + editJokeId);
   } else {
     res.redirect('/login');
   }
@@ -304,24 +404,32 @@ app.post('/update', (req, res) => {
 app.post('/delete', (req, res) => {
   if (req.isAuthenticated()) {
     const jokeToDeleteId = req.body.delete;
-    User.findOneAndUpdate({_id: req.user._id}, {$pull: {jokes: {_id: jokeToDeleteId}}}, (err, foundJoke) => { // findOne corresponds to finding a list (therefore findList)
+    User.findOneAndUpdate({
+      _id: req.user._id
+    }, {
+      $pull: {
+        jokes: {
+          _id: jokeToDeleteId
+        }
+      }
+    }, (err, foundJoke) => { // findOne corresponds to finding a list (therefore findList)
       if (err) {
         console.log(err);
       } else {
         res.redirect("/edit");
       }
     });
-      } else {
+  } else {
     res.redirect('/login')
   }
-      });
+});
 
 
 
 /////////////////////// search  /////////////////////////////////
 
 app.get('/search', (req, res) => {
-// add post on first click, remove on second
+  // add post on first click, remove on second
 });
 
 
@@ -353,13 +461,13 @@ app.get('/search', (req, res) => {
 // })
 
 
-  // Joke.find({joke: keyword}, (err, foundJokes) => {
-  //   if(foundJokes) {
-  //     res.render('found', {foundJokes: foundJokes});
-  //   } else {
-  //     res.send("No match found.");
-  //   }
-  // })
+// Joke.find({joke: keyword}, (err, foundJokes) => {
+//   if(foundJokes) {
+//     res.render('found', {foundJokes: foundJokes});
+//   } else {
+//     res.send("No match found.");
+//   }
+// })
 
 
 app.post('/search', (req, res) => {
@@ -371,24 +479,24 @@ app.post('/search', (req, res) => {
 app.get('/favourites', (req, res) => {
   if (req.isAuthenticated()) {
     res.render('favourites');
-      } else {
+  } else {
     res.redirect('/login')
   }
 });
 
 app.post('/favourites', (req, res) => {
-if (req.isAuthenticated()) {
-  // add post on first click, remove on second
-    } else {
-  res.redirect('/login')
-}
+  if (req.isAuthenticated()) {
+    // add post on first click, remove on second
+  } else {
+    res.redirect('/login')
+  }
 });
 
 
 app.post('/inappropriate', (req, res) => {
   if (req.isAuthenticated()) {
     // add post on first click, remove on second
-      } else {
+  } else {
     res.redirect('/login')
   }
 });
@@ -404,7 +512,7 @@ app.get('/settings', (req, res) => {
   if (req.isAuthenticated()) {
     res.render('settings');
     // add post on first click, remove on second
-      } else {
+  } else {
     res.redirect('/login')
   }
 });
@@ -413,7 +521,7 @@ app.post('/settings', (req, res) => {
   if (req.isAuthenticated()) {
     // delete Account
     // add/ change email, username and password
-      } else {
+  } else {
     res.redirect('/login')
   }
 });
@@ -430,7 +538,7 @@ app.get('/logout', (req, res) => {
   if (req.isAuthenticated()) {
     req.logout();
     res.redirect('/');
-         } else {
+  } else {
     res.redirect('/login')
   }
 

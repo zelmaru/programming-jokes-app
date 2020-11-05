@@ -22,6 +22,15 @@
         <%  }) %>
         <%  } %>
 
+        <%  if (typeof message != "undefined") { %>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <%= message %>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <%  } %>
+
         <!-- set the novalidate attribute to an HTML form to unblock express-validator's alerts-->
         <form action="/register" method="POST" novalidate>
           <div class="form-group">
@@ -31,6 +40,10 @@
           <div class="form-group">
             <label for="password">Password</label>
             <input type="password" class="form-control" name="password" placeholder="Your Password">
+            <div class="form-group">
+            </div>
+            <label for="passwordCheck">Password Confirmation</label>
+            <input type="password" class="form-control" name="passwordCheck" placeholder="Your Password Confirmation">
           </div>
           <button type="submit" class="btn btn-lg btn-warning">Register</button>
           <p class="pl-2 d-inline">Do you already have an account? <a class="link-styled" href="/login">Log in</a></p>
