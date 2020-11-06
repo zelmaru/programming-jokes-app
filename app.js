@@ -7,7 +7,7 @@ const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 // no need to write require passport-local: it is one of dependencies needed by passport-local-mongoose
-const LocalStrategy = require('passport-local').Strategy;
+// const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 const FacebookStrategy = require('passport-facebook').Strategy;
@@ -49,7 +49,8 @@ app.use(function(req, res, next) {
 mongoose.connect('mongodb://localhost:27017/jokesDB', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useCreateIndex: true
+  useCreateIndex: true,
+  useFindAndModify: false
 });
 
 const jokeSchema = new Schema({
@@ -70,14 +71,15 @@ const jokeSchema = new Schema({
 const Joke = new mongoose.model('Joke', jokeSchema)
 
 const userSchema = new Schema({ // change the Schema into a full mongose schema
-  email: {type: String, unique: true},
+  email: {type: String},
   password: String,
   googleId: String,
   facebookId: String,
-  jokes: [jokeSchema]
+  jokes: [jokeSchema],
+  likedJokes: [jokeSchema]
 });
 
-
+//
 // userSchema.post('save', function(error, doc, next) {
 //   if (error.name === 'MongoError' && error.code === 11000) {
 //     next(new Error('There was a duplicate key error'));
@@ -92,10 +94,10 @@ const userSchema = new Schema({ // change the Schema into a full mongose schema
 const options = {
   errorMessages: {
              MissingPasswordError: 'No password was given',
-             IncorrectPasswordError: 'Password or email are incorrect',
-             IncorrectUsernameError: 'Password or email are incorrect',
-             MissingUsernameError: 'No email was given',
-             UserExistsError: 'A user with the given email is already registered'
+             IncorrectPasswordError: 'Password or e-mail are incorrect',
+             IncorrectUsernameError: 'Password or e-mail are incorrect',
+             MissingUsernameError: 'No e-mail was given',
+             UserExistsError: 'A user with the given e-mail is already registered'
              }
 };
 
@@ -160,15 +162,6 @@ passport.use(new FacebookStrategy({
   }
 ));
 
-
-
-function findUserByEmail(value) {
-  User.findOne({email: value}), function(err, user) {
-    if (err) {
-      console.log(err)
-    }
-  }
-}
 /////////////////////// root route /////////////////////////////////
 
 app.get('/', (req, res) => {
@@ -235,7 +228,7 @@ app.get('/register', (req, res) => {
   check('username')
   .normalizeEmail()
   // check if username is an email
-  .isEmail().withMessage('Email must be a valid email address'),
+  .isEmail().withMessage('E-mail must be a valid e-mail address'),
   check('password')
   // check the pasword length
   .isLength({
@@ -279,11 +272,12 @@ app.get('/register', (req, res) => {
 
 app.post('/login', urlencodedParser, [
   check('username')
-  .isEmail().withMessage('Email must be a valid email address')
+  .isEmail().withMessage('E-mail must be a valid e-mail address')
   .normalizeEmail(),
   check('password')
-  .isLength({ min: 6 }).withMessage("Password must be at least 6 characters long")
-
+  .isLength({
+    min: 6
+  }).withMessage('Password must be at least 6 characters long')
 ]
 , (req, res) => {
 
@@ -300,19 +294,18 @@ app.post('/login', urlencodedParser, [
     password: req.body.password
   })
   req.login(user, (err) => {
-    // if(!user) {
-    //   res.render('login', {message: "Invalid email or password"});
-    // } else {
+    if(!user) {
 
-      if (err) {
-        console.log(err);
-        console.log("Invalid e-mail or password");
+    }
 
-      } else {
-        passport.authenticate('local', {failureRedirect: "/login"})(req, res, () => { // authenticate the user
-          res.redirect('/submit');
-        });
-      // }
+    if (err) {
+      console.log(err);
+      // const message = "Invalid e-mail or password";
+        res.render('login', {message: err.message});
+    } else {
+      passport.authenticate('local', {failureRedirect: '/login'})(req, res, () => { // authenticate the user
+        res.redirect('/submit');
+      });
     }
   });
 });
@@ -479,6 +472,33 @@ app.post('/search', (req, res) => {
 
 /////////////////////// on-click user actions /////////////////////////////////
 
+//
+// if (req.isAuthenticated()) {
+//   const editedText = req.body.textarea;
+//   const jokeId = req.body.save;
+//   User.findOneAndUpdate({
+//     _id: req.user._id
+//   }, {
+//     $set: {
+//       "jokes.$[el].joke": editedText
+//     }
+//   }, {
+//     arrayFilters: [{
+//       "el._id": jokeId
+//     }],
+//     new: true
+//   }, (err, foundJoke) => {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       res.redirect("/edit");
+//     }
+//   });
+//   // res.redirect('/update/' + editJokeId);
+// } else {
+//   res.render('login', {flash: "To update a joke, you have to log in first"});
+// }
+
 app.get('/favourites', (req, res) => {
   if (req.isAuthenticated()) {
     res.render('favourites');
@@ -487,11 +507,36 @@ app.get('/favourites', (req, res) => {
   }
 });
 
-app.post('/favourites', (req, res) => {
+app.post('/like', (req, res) => {
   if (req.isAuthenticated()) {
     // add post on first click, remove on second
+    const likedText = req.body.likeBtn;
+        User.findById(req.user._id, (err, foundUser) => {
+      if (err) {
+        console.log(err);
+      } else {
+        foundUser.likedJokes.push(likedText);
+        foundUser.save(() => {
+        res.redirect('/');
+      });
+    }
+    });
   } else {
     res.render('login', {flash: "To add a joke to favourites, you have to log in first"});
+  }
+});
+
+app.post('/dislike', (req, res) => {
+  if (req.isAuthenticated()) {
+    // add post on first click, remove on second
+    const dislikedId = req.body.dislikeBtn;
+    User.findOneAndUpdate({_id: req.user._id}, {$pull: {likedJokes: dislikedId}}, (err, foundUser) => {
+  if (!err) {
+    res.redirect('/');
+  }
+});
+  } else {
+    res.render('login', {flash: "To remove a joke from favourites, you have to log in first"});
   }
 });
 

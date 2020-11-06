@@ -80,6 +80,16 @@ icon-btns-icons-edit: {
   opacity: 0.7;
 }
 
+.true {
+  color: #FFC107;
+  opacity: 1;
+}
+
+.false {
+  color: #fff;
+  opacity: 0.7;
+}
+
 .joke-text-div-edit {
   padding: 1rem 1rem 0.5rem 1rem;
 }
