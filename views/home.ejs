@@ -17,7 +17,7 @@
             <% arrayOfJokes.forEach((joke) => {  %>
               <div class="joke-text m-4 p-4">
                 <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke %></p>
-                <form class="flag-inappropriate" action="/inaproppriate" method="post">
+                <form class="flag-inappropriate" action="/flag" method="post">
                   <button class="float-right icon-btns" type="submit" name="flag-btn"  data-toggle="tooltip" data-placement="bottom" title="Flag as inappropriate"><i class="far fa-flag icon-btns-icons"></i></button>
                 </form>
                 <form class="like-heart" action="/favourites" method="post">

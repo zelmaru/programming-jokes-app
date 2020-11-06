@@ -7,6 +7,7 @@ const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 // no need to write require passport-local: it is one of dependencies needed by passport-local-mongoose
+const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 const FacebookStrategy = require('passport-facebook').Strategy;
@@ -69,15 +70,37 @@ const jokeSchema = new Schema({
 const Joke = new mongoose.model('Joke', jokeSchema)
 
 const userSchema = new Schema({ // change the Schema into a full mongose schema
-  email: String,
+  email: {type: String, unique: true},
   password: String,
   googleId: String,
   facebookId: String,
   jokes: [jokeSchema]
 });
 
+
+// userSchema.post('save', function(error, doc, next) {
+//   if (error.name === 'MongoError' && error.code === 11000) {
+//     next(new Error('There was a duplicate key error'));
+//   } else {
+//     next();
+//   }
+// });
+
+
+// set passport-local-mongoose error message options
+
+const options = {
+  errorMessages: {
+             MissingPasswordError: 'No password was given',
+             IncorrectPasswordError: 'Password or email are incorrect',
+             IncorrectUsernameError: 'Password or email are incorrect',
+             MissingUsernameError: 'No email was given',
+             UserExistsError: 'A user with the given email is already registered'
+             }
+};
+
 // add a plugin to the userSchema
-userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(passportLocalMongoose, options);
 userSchema.plugin(findOrCreate);
 
 const User = new mongoose.model('User', userSchema);
@@ -100,7 +123,6 @@ passport.deserializeUser(function(id, done) {
     done(err, user);
   });
 });
-
 
 // google
 passport.use(new GoogleStrategy({
@@ -138,6 +160,15 @@ passport.use(new FacebookStrategy({
   }
 ));
 
+
+
+function findUserByEmail(value) {
+  User.findOne({email: value}), function(err, user) {
+    if (err) {
+      console.log(err)
+    }
+  }
+}
 /////////////////////// root route /////////////////////////////////
 
 app.get('/', (req, res) => {
@@ -198,50 +229,19 @@ app.get('/register', (req, res) => {
 });
 
 /////////////////////// registration - classical  /////////////////////////////////
-
-// validation using Express-validator:
-// app.post('/register', (req, res) => {
-//   User.find({email: req.body.username}, (err, userFound) => {
-//     if (err) {
-//       console.log(err);
-//     } else {
-//       if (userFound) {
-//         const message = "Email already in use";
-//         res.render('register', {
-//           message: message
-//         });
-//       } else {
-//         console.log("no user");
-//       }
-//     }
-//   });
-// },
+// validate registration form using express-validator
 
  app.post('/register', urlencodedParser, [
-  // check if username is an email
   check('username')
-  .custom(async function(value){
-			var user = await User.find({email:value})
-			return user.length == 0;
-		})
-		.withMessage('Email already exists')
-//   .custom(username => {
-//    User.findOne({email: username}).exec(function(user) {
-//        if (!user) {
-//            return true;
-//        }
-//        else{
-//            return false;
-//        }
-//     })
-// }).withMessage('Email already in use.')
   .normalizeEmail()
-  .isEmail().withMessage('Email must be a valid e-mail address'),
-  // check if password confirmation matches the passsword
+  // check if username is an email
+  .isEmail().withMessage('Email must be a valid email address'),
   check('password')
+  // check the pasword length
   .isLength({
-    min: 5
+    min: 6
   }).withMessage('Password must be at least 6 characters long')
+  // check if password confirmation matches the passsword
   .custom((value, {
     req
   }) => {
@@ -251,8 +251,6 @@ app.get('/register', (req, res) => {
       return true;
     }
   })
-  // check the pasword length
-
 ], (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -280,14 +278,14 @@ app.get('/register', (req, res) => {
 /////////////////////// login - classical  /////////////////////////////////
 
 app.post('/login', urlencodedParser, [
-  check('username', 'Email must be a valid e-mail address')
-  .isEmail()
+  check('username')
+  .isEmail().withMessage('Email must be a valid email address')
   .normalizeEmail(),
-  check('password', 'Password must be at least 6 characters long')
-  .isLength({
-    min: 5
-  })
-], (req, res) => {
+  check('password')
+  .isLength({ min: 6 }).withMessage("Password must be at least 6 characters long")
+
+]
+, (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -302,14 +300,19 @@ app.post('/login', urlencodedParser, [
     password: req.body.password
   })
   req.login(user, (err) => {
-    if (err) {
-      console.log(err);
-      // const message = "Invalid e-mail or password";
-      // res.render('login', {alert: message})
-    } else {
-      passport.authenticate('local')(req, res, () => { // authenticate the user
-        res.redirect('/submit');
-      });
+    // if(!user) {
+    //   res.render('login', {message: "Invalid email or password"});
+    // } else {
+
+      if (err) {
+        console.log(err);
+        console.log("Invalid e-mail or password");
+
+      } else {
+        passport.authenticate('local', {failureRedirect: "/login"})(req, res, () => { // authenticate the user
+          res.redirect('/submit');
+        });
+      // }
     }
   });
 });
@@ -320,7 +323,7 @@ app.get('/submit', (req, res) => {
   if (req.isAuthenticated()) {
     res.render('submit');
   } else {
-    res.redirect('/login')
+    res.render('login', {flash: "To submit a joke, you have to log in first"});
   }
 });
 
@@ -345,7 +348,7 @@ app.post('/submit', (req, res) => {
 
 });
 
-/////////////////////// Edit your jokes  /////////////////////////////////
+/////////////////////// Edit route  /////////////////////////////////
 
 app.get('/edit', (req, res) => {
   if (req.isAuthenticated()) {
@@ -361,7 +364,7 @@ app.get('/edit', (req, res) => {
       }
     })
   } else {
-    res.redirect('/login')
+    res.render('login', {flash: "To edit jokes, you have to log in first"});
   }
 });
 
@@ -392,7 +395,7 @@ app.post('/update', (req, res) => {
     });
     // res.redirect('/update/' + editJokeId);
   } else {
-    res.redirect('/login');
+    res.render('login', {flash: "To update a joke, you have to log in first"});
   }
 });
 
@@ -420,13 +423,13 @@ app.post('/delete', (req, res) => {
       }
     });
   } else {
-    res.redirect('/login')
+    res.render('login', {flash: "To delete a joke, you have to log in first"});
   }
 });
 
 
 
-/////////////////////// search  /////////////////////////////////
+/////////////////////// Search  /////////////////////////////////
 
 app.get('/search', (req, res) => {
   // add post on first click, remove on second
@@ -488,16 +491,16 @@ app.post('/favourites', (req, res) => {
   if (req.isAuthenticated()) {
     // add post on first click, remove on second
   } else {
-    res.redirect('/login')
+    res.render('login', {flash: "To add a joke to favourites, you have to log in first"});
   }
 });
 
 
-app.post('/inappropriate', (req, res) => {
+app.post('/flag', (req, res) => {
   if (req.isAuthenticated()) {
     // add post on first click, remove on second
   } else {
-    res.redirect('/login')
+    res.render('login', {flash: "To flag a joke as inappropriate, you have to log in first"});
   }
 });
 

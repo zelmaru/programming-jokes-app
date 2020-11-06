@@ -1,6 +1,17 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
-  <i class="fas fa-user-check fa-6x"></i>
+
+<!-- flash messages if the request is unauthorized -->
+          <%  if (typeof flashMsg != "undefined") { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= flashMsg %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <%  } %>
+
+  <i class="page-logo fas fa-user-check fa-6x"></i>
   <h1>Log in</h1>
   <p>Only authenticated users can submit jokes.</p>
   <hr>
@@ -22,6 +33,14 @@
           <%  }) %>
           <%  } %>
 
+          <%  if (typeof message != "undefined") { %>
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <%= message %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <%  } %>
 
           <!-- set the novalidate attribute to an HTML form to unblock express-validator's alerts-->
           <form action="/login" method="POST" novalidate>
