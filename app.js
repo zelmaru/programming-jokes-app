@@ -57,48 +57,32 @@ const jokeSchema = new Schema({
   joke: {
     type: String,
     required: true
-  },
-  liked: {
-    type: Boolean,
-    default: false
-  },
-  flagged: {
-    type: Boolean,
-    default: false
   }
 });
 
 const Joke = new mongoose.model('Joke', jokeSchema)
 
 const userSchema = new Schema({ // change the Schema into a full mongose schema
-  email: {type: String},
+  email: {
+    type: String
+  },
   password: String,
   googleId: String,
   facebookId: String,
-  jokes: [jokeSchema],
-  likedJokes: [jokeSchema]
+  jokes: [jokeSchema]
 });
-
-//
-// userSchema.post('save', function(error, doc, next) {
-//   if (error.name === 'MongoError' && error.code === 11000) {
-//     next(new Error('There was a duplicate key error'));
-//   } else {
-//     next();
-//   }
-// });
 
 
 // set passport-local-mongoose error message options
 
 const options = {
   errorMessages: {
-             MissingPasswordError: 'No password was given',
-             IncorrectPasswordError: 'Password or e-mail are incorrect',
-             IncorrectUsernameError: 'Password or e-mail are incorrect',
-             MissingUsernameError: 'No e-mail was given',
-             UserExistsError: 'A user with the given e-mail is already registered'
-             }
+    MissingPasswordError: 'No password was given',
+    IncorrectPasswordError: 'Password or e-mail are incorrect',
+    IncorrectUsernameError: 'Password or e-mail are incorrect',
+    MissingUsernameError: 'No e-mail was given',
+    UserExistsError: 'A user with the given e-mail is already registered'
+  }
 };
 
 // add a plugin to the userSchema
@@ -108,13 +92,6 @@ userSchema.plugin(findOrCreate);
 const User = new mongoose.model('User', userSchema);
 
 passport.use(User.createStrategy());
-
-
-// use static serialize and deserialize of model for passport session support
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
-// With google auth: Error: Failed to serialize user into session
-// replace so it would work with any kind of authentification
 
 passport.serializeUser(function(user, done) {
   done(null, user.id);
@@ -222,19 +199,16 @@ app.get('/register', (req, res) => {
 });
 
 /////////////////////// registration - classical  /////////////////////////////////
-// validate registration form using express-validator
 
- app.post('/register', urlencodedParser, [
+// validate registration form using express-validator
+app.post('/register', urlencodedParser, [
   check('username')
   .normalizeEmail()
-  // check if username is an email
   .isEmail().withMessage('E-mail must be a valid e-mail address'),
   check('password')
-  // check the pasword length
   .isLength({
     min: 6
   }).withMessage('Password must be at least 6 characters long')
-  // check if password confirmation matches the passsword
   .custom((value, {
     req
   }) => {
@@ -258,7 +232,9 @@ app.get('/register', (req, res) => {
     if (err) {
       console.log(err);
       // if this e-mail is already taken, alert (err.message):
-      res.render('register', {message: err.message});
+      res.render('register', {
+        message: err.message
+      });
     } else {
       // the callback is only triggered if the auth was successful
       passport.authenticate('local')(req, res, () => {
@@ -278,12 +254,10 @@ app.post('/login', urlencodedParser, [
   .isLength({
     min: 6
   }).withMessage('Password must be at least 6 characters long')
-]
-, (req, res) => {
+], (req, res) => {
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // return res.status(422).jsonp(errors.array());
     const alert = errors.array();
     res.render('login', {
       alert: alert
@@ -294,16 +268,16 @@ app.post('/login', urlencodedParser, [
     password: req.body.password
   })
   req.login(user, (err) => {
-    if(!user) {
-
-    }
-
+    if (!user) {}
     if (err) {
       console.log(err);
-      // const message = "Invalid e-mail or password";
-        res.render('login', {message: err.message});
+      res.render('login', {
+        message: err.message
+      });
     } else {
-      passport.authenticate('local', {failureRedirect: '/login'})(req, res, () => { // authenticate the user
+      passport.authenticate('local', {
+        failureRedirect: '/login'
+      })(req, res, () => { // authenticate the user
         res.redirect('/submit');
       });
     }
@@ -316,7 +290,9 @@ app.get('/submit', (req, res) => {
   if (req.isAuthenticated()) {
     res.render('submit');
   } else {
-    res.render('login', {flash: "To submit a joke, you have to log in first"});
+    res.render('login', {
+      flash: "To submit a joke, you have to log in first"
+    });
   }
 });
 
@@ -332,13 +308,10 @@ app.post('/submit', (req, res) => {
         foundUser.jokes.push(joke);
         foundUser.save(() => {
           res.redirect('/');
-
         })
       }
     }
-
   })
-
 });
 
 /////////////////////// Edit route  /////////////////////////////////
@@ -357,7 +330,9 @@ app.get('/edit', (req, res) => {
       }
     })
   } else {
-    res.render('login', {flash: "To edit jokes, you have to log in first"});
+    res.render('login', {
+      flash: "To edit jokes, you have to log in first"
+    });
   }
 });
 
@@ -386,9 +361,10 @@ app.post('/update', (req, res) => {
         res.redirect("/edit");
       }
     });
-    // res.redirect('/update/' + editJokeId);
   } else {
-    res.render('login', {flash: "To update a joke, you have to log in first"});
+    res.render('login', {
+      flash: "To update a joke, you have to log in first"
+    });
   }
 });
 
@@ -408,7 +384,7 @@ app.post('/delete', (req, res) => {
           _id: jokeToDeleteId
         }
       }
-    }, (err, foundJoke) => { // findOne corresponds to finding a list (therefore findList)
+    }, (err, foundJoke) => {
       if (err) {
         console.log(err);
       } else {
@@ -416,18 +392,38 @@ app.post('/delete', (req, res) => {
       }
     });
   } else {
-    res.render('login', {flash: "To delete a joke, you have to log in first"});
+    res.render('login', {
+      flash: "To delete a joke, you have to log in first"
+    });
   }
 });
 
 
-
 /////////////////////// Search  /////////////////////////////////
-
-app.get('/search', (req, res) => {
-  // add post on first click, remove on second
-});
-
+//
+// app.post('/search', (req, res) => {
+//   const keyword = req.body.keyword;
+//   res.redirect('/search/' + keyword)
+// })
+//
+// app.get('/search/:keyword', (req, res) => {
+//   User.find({
+//     "jokes": {
+//       "$elemMatch": {joke: /req.params.keyword/i }
+//     }
+//   }, (err, foundUsers) => {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       console.log(foundUsers);
+//       res.render('home', {
+//         usersWithJokes: foundUsers
+//       });
+//     }
+//   })
+//
+// });
+//
 
 
 // find all jokes that contain a particular string
@@ -449,14 +445,10 @@ app.get('/search', (req, res) => {
 //     })
 // });
 //
-// app.post('/search', (req, res) => {
-//   const keyword = req.body.search;
-//   if (keyword.length < 1) {
-//     res.render('found', {title: "No input."foundJokes: foundJokes});
-//   }
-// })
 
 
+
+//
 // Joke.find({joke: keyword}, (err, foundJokes) => {
 //   if(foundJokes) {
 //     res.render('found', {foundJokes: foundJokes});
@@ -465,94 +457,25 @@ app.get('/search', (req, res) => {
 //   }
 // })
 
+/////////////////////// random joke /////////////////////////////////
 
-app.post('/search', (req, res) => {
-  // add post on first click, remove on second
-});
-
-/////////////////////// on-click user actions /////////////////////////////////
-
-//
-// if (req.isAuthenticated()) {
-//   const editedText = req.body.textarea;
-//   const jokeId = req.body.save;
-//   User.findOneAndUpdate({
-//     _id: req.user._id
-//   }, {
-//     $set: {
-//       "jokes.$[el].joke": editedText
-//     }
-//   }, {
-//     arrayFilters: [{
-//       "el._id": jokeId
-//     }],
-//     new: true
-//   }, (err, foundJoke) => {
-//     if (err) {
-//       console.log(err);
-//     } else {
-//       res.redirect("/edit");
-//     }
-//   });
-//   // res.redirect('/update/' + editJokeId);
-// } else {
-//   res.render('login', {flash: "To update a joke, you have to log in first"});
-// }
-
-app.get('/favourites', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.render('favourites');
-  } else {
-    res.redirect('/login')
-  }
-});
-
-app.post('/like', (req, res) => {
-  if (req.isAuthenticated()) {
-    // add post on first click, remove on second
-    const likedText = req.body.likeBtn;
-        User.findById(req.user._id, (err, foundUser) => {
-      if (err) {
-        console.log(err);
-      } else {
-        foundUser.likedJokes.push(likedText);
-        foundUser.save(() => {
-        res.redirect('/');
+app.get('/random', (req, res) => {
+  // find all posted jokes and render them
+  User.find({
+    "jokes": {
+      $ne: null
+    }
+  }, (err, foundUsers) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(foundUsers);
+      res.render('random', {
+        usersWithJokes: foundUsers
       });
     }
-    });
-  } else {
-    res.render('login', {flash: "To add a joke to favourites, you have to log in first"});
-  }
+  })
 });
-
-app.post('/dislike', (req, res) => {
-  if (req.isAuthenticated()) {
-    // add post on first click, remove on second
-    const dislikedId = req.body.dislikeBtn;
-    User.findOneAndUpdate({_id: req.user._id}, {$pull: {likedJokes: dislikedId}}, (err, foundUser) => {
-  if (!err) {
-    res.redirect('/');
-  }
-});
-  } else {
-    res.render('login', {flash: "To remove a joke from favourites, you have to log in first"});
-  }
-});
-
-
-app.post('/flag', (req, res) => {
-  if (req.isAuthenticated()) {
-    // add post on first click, remove on second
-  } else {
-    res.render('login', {flash: "To flag a joke as inappropriate, you have to log in first"});
-  }
-});
-
-
-
-
-
 
 /////////////////////// account settings /////////////////////////////////
 

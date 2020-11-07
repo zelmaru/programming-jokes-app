@@ -42,54 +42,6 @@ main {
   color: #fff;
 }
 
-.icon-btns {
-  border: none;
-  background-color: transparent;
-}
-
-.icon-btns:focus {
-outline: none;
-}
-
-.icon-btns-icons {
-  color: #fff;
-  opacity: 0.7;
-}
-
-.icon-btns-icons:hover {
-  color: #FFC107;
-  opacity: 0.7;
-}
-
-icon-btns-icons-edit: {
-  color: #212529;
-}
-
-
-.icon-btns-icons-edit:hover {
-  opacity: 0.7;
-}
-
-.yellow {
-  color: #FFC107;
-  opacity: 1;
-}
-
-.yellow:hover {
-  color: #FFC107;
-  opacity: 0.7;
-}
-
-.true {
-  color: #FFC107;
-  opacity: 1;
-}
-
-.false {
-  color: #fff;
-  opacity: 0.7;
-}
-
 .joke-text-div-edit {
   padding: 1rem 1rem 0.5rem 1rem;
 }

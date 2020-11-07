@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <link rel="stylesheet" href="/css/bootstrap-social.css">
+<link rel="stylesheet" href="/css/rating.min.css">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 
@@ -27,11 +28,15 @@
         <li class="nav-item p-1">
           <a class="btn btn-warning" href="/submit">Submit a Joke!</a>
         </li>
+        <li class="nav-item p-1">
+          <a class="nav-link text-light" href="/random">Get a Random Joke</a>
+
+        </li>
         <!-- render different navbar item when user is logged in -->
         <% if(!currentUser){ %>
           <li class="nav-item dropdown p-1">
             <a class="nav-link text-light dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Not Logged In
+              <i class="far fa-user"></i>&nbsp;Not Logged In
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item p-1" href="/login">Log In</a>
@@ -42,11 +47,10 @@
             <% } else { %>
         <li class="nav-item dropdown p-1">
         <a class="nav-link text-light dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Account
+          <i class="fas fa-user"></i>&nbsp;Logged In
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item p-1" href="/edit">Edit Jokes</a>
-          <a class="dropdown-item p-1" href="/favourites">Favourites</a>
           <a class="dropdown-item p-1" href="/settings">Account Settings</a>
           <a class="dropdown-item p-1" href="/terms">Terms</a>
           <div class="dropdown-divider"></div>
@@ -57,12 +61,6 @@
 
       </li>
 
-      <li class="nav-item p-1">
-        <form class="form-inline my-2 my-lg-0" action="/search" method="POST">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search for a joke..." aria-label="Search for a joke">
-          <button class="btn btn-outline-light my-2 my-sm-0" type="submit"><i class="fas fa-search"></i></button>
-        </form>
-      </li>
 <!--
 
         <li class="nav-item p-1">

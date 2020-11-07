@@ -8,19 +8,20 @@
   <div class="container">
 
     <% postedJokes.forEach((joke) => {  %>
-      <div class="joke-text m-4 joke-text-div-edit">
+      <div class="m-2 joke-text-div-edit">
+        <div class="form-group">
+      <div class="form-group m-4">
+        <form class="update-form " action="/update" method="post">
 
-      <div class="form-group">
-        <form class="update-form" action="/update" method="post">
-
-        <textarea class="joke-text form-control text-center textarea-edit-joke" name="textarea"><%= joke.joke %></textarea>
-        <button class="float-right icon-btns" type="submit" name="save" value="<%= joke._id %>" data-toggle="tooltip" data-placement="bottom" title="Save changes"><i class="fas fa-save icon-btns-icons yellow"></i></button>
+        <textarea class="joke-text form-control text-center textarea-edit-joke p-4" name="textarea"><%= joke.joke %></textarea>
+        <button class="btn btn-lg btn-warning float-right m-1" type="submit" name="save" value="<%= joke._id %>">Save Changes</button>
       </form>
         <form class="delete-form" action="/delete" method="post">
         <input type="hidden" name="content" value="<%= joke.joke %>"/>
-          <button class="float-right icon-btns" type="submit" name="delete" value="<%= joke._id %>" data-toggle="tooltip" data-placement="bottom" title="Delete joke"><i class="far fa-trash-alt icon-btns-icons"></i></button>
+          <button class="btn btn-lg btn-dark float-right m-1" type="submit" name="delete" value="<%= joke._id %>">Delete Joke</button>
         </form>
         </div>
+      </div>
       </div>
     <%  }) %>
 

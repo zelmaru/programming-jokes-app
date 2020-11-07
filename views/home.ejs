@@ -1,5 +1,15 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
+<!-- flash message -->
+          <%  if (typeof flash != "undefined") { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <%= flash %>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <%  } %>
+
     <i class="fas fa-laptop-code fa-6x"></i>
     <h1>Programming Jokes</h1>
     <p>Know a good programming joke? Share it!</p>
@@ -17,18 +27,6 @@
             <% arrayOfJokes.forEach((joke) => {  %>
               <div class="joke-text m-4 p-4">
                 <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke %></p>
-                <form class="flag-inappropriate" action="/flag" method="post">
-                <button class="float-right icon-btns" type="submit" name="flagBtn" value="<%= joke._id %>" data-toggle="tooltip" data-placement="bottom" title="Flag as inappropriate"><i class="far fa-flag icon-btns-icons"></i></button>
-                </form>
-              <%  if (joke.liked === "false") { %>
-                  <form class="like-heart" action="/like" method="post">
-                    <button class="float-right icon-btns" type="submit" name="likeBtn" value="<%= joke.joke %>" data-toggle="tooltip" data-placement="bottom" title="Add to favourites"><i class="far fa-heart icon-btns-icons <%= joke.liked %>"></i></button>
-                  </form>
-              <%  } else { %>
-                  <form class="like-heart" action="/dislike" method="post">
-                    <button class="float-right icon-btns" type="submit" name="dislikeBtn" value="<%= joke.joke %>" data-toggle="tooltip" data-placement="bottom" title="Add to favourites"><i class="far fa-heart icon-btns-icons <%= joke.liked %>"></i></button>
-                  </form>
-              <%  } %>
               </div>
               <%  }) %>
               <% }) %>

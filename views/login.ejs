@@ -1,7 +1,7 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
 
-<!-- flash messages if the request is unauthorized -->
+<!-- flash message -->
           <%  if (typeof flash != "undefined") { %>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
             <%= flash %>
