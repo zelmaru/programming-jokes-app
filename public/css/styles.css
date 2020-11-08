@@ -37,6 +37,26 @@ main {
   white-space: pre-line;
 }
 
+.icon-btns {
+  border: none;
+  background-color: transparent;
+}
+
+.icon-btns:focus {
+outline: none;
+}
+
+.icon-btns-icons {
+  color: #fff;
+  opacity: 0.7;
+}
+
+.icon-btns-icons:hover {
+  color: #FFC107;
+  opacity: 0.9;
+}
+
+
 .joke-text:focus {
   background-color: #343A40;
   color: #fff;
