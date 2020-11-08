@@ -23,10 +23,12 @@
       <%  if (typeof usersWithJokes != "undefined") { %>
         <!-- Loop through an array of jokes to get the contents -->
           <% usersWithJokes.forEach((user) => { %>
+            <%  let number = 0;  %>
             <%  let arrayOfJokes = user.jokes %>
             <% arrayOfJokes.forEach((joke) => {  %>
-              <div class="joke-text m-4 p-4">
-                <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke %></p>
+              <%  number++;  %>
+              <div class="joke-text m-4 p-4 id<%= number %>">
+                <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke%></p>
               </div>
               <%  }) %>
               <% }) %>

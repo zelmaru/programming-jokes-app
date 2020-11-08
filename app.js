@@ -461,20 +461,28 @@ app.post('/delete', (req, res) => {
 
 app.get('/random', (req, res) => {
   // find all posted jokes and render them
-  User.find({
-    "jokes": {
-      $ne: null
-    }
-  }, (err, foundUsers) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.log(foundUsers);
-      res.render('random', {
-        usersWithJokes: foundUsers
-      });
-    }
-  })
+//   User.find({}, {"jokes.joke": 1}, (err, foundJokes) => {
+//   if (err) {
+//     console.log(err);
+//   } else {
+//     console.log(foundJokes);
+//     res.render('random', {foundJokes: foundJokes});
+//     }
+// });
+User.find({
+  "jokes": {
+    $ne: null
+  }
+}, (err, foundUsers) => {
+  if (err) {
+    console.log(err);
+  } else {
+    console.log(foundUsers.jokes);
+    res.render('random', {
+      usersWithJokes: foundUsers
+    });
+  }
+})
 });
 
 /////////////////////// account settings /////////////////////////////////
