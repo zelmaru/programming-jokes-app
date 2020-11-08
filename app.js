@@ -307,7 +307,20 @@ app.post('/submit', (req, res) => {
       if (foundUser) {
         foundUser.jokes.push(joke);
         foundUser.save(() => {
-          res.redirect('/');
+          User.find({
+            "jokes": {
+              $ne: null
+            }
+          }, (err, foundUsers) => {
+            if (err) {
+              console.log(err);
+            } else {
+              console.log(foundUsers);
+              res.render('home', {
+                usersWithJokes: foundUsers, greenFlash: "Your joke was successfully added"
+              });
+            }
+          })
         })
       }
     }
@@ -358,7 +371,17 @@ app.post('/update', (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        res.redirect("/edit");
+        User.findById(req.user._id, (err, foundUser) => {
+          if (err) {
+            console.log(err);
+          } else {
+            if (foundUser) {
+              res.render('edit', {
+                postedJokes: foundUser.jokes, greenFlash: "Changes were successfully saved"
+              });
+            }
+          }
+        })
       }
     });
   } else {
@@ -388,7 +411,17 @@ app.post('/delete', (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        res.redirect("/edit");
+        User.findById(req.user._id, (err, foundUser) => {
+          if (err) {
+            console.log(err);
+          } else {
+            if (foundUser) {
+              res.render('edit', {
+                postedJokes: foundUser.jokes, greenFlash: "Joke was successfully deleted"
+              });
+            }
+          }
+        })
       }
     });
   } else {
@@ -460,15 +493,7 @@ app.post('/delete', (req, res) => {
 /////////////////////// random joke /////////////////////////////////
 
 app.get('/random', (req, res) => {
-  // find all posted jokes and render them
-//   User.find({}, {"jokes.joke": 1}, (err, foundJokes) => {
-//   if (err) {
-//     console.log(err);
-//   } else {
-//     console.log(foundJokes);
-//     res.render('random', {foundJokes: foundJokes});
-//     }
-// });
+// find all existing jokes, then in EJS file choose random one to display
 User.find({
   "jokes": {
     $ne: null

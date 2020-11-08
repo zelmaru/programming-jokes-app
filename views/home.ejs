@@ -10,6 +10,16 @@
           </div>
           <%  } %>
 
+          <!-- flash message -->
+                    <%  if (typeof greenFlash != "undefined") { %>
+                      <div class="alert alert-success alert-dismissible fade show" role="alert">
+                      <%= greenFlash %>
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <%  } %>
+
     <i class="fas fa-laptop-code fa-6x"></i>
     <h1>Programming Jokes</h1>
     <p>Know a good programming joke? Share it!</p>
@@ -25,11 +35,11 @@
           <% usersWithJokes.forEach((user) => { %>
             <%  let number = 0;  %>
             <%  let arrayOfJokes = user.jokes %>
-            <% arrayOfJokes.forEach((joke) => {  %>
+            <% arrayOfJokes.reverse().forEach((joke) => {  %>
               <%  number++;  %>
               <div class="joke-text m-4 p-4 id<%= number %>">
                 <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke%></p>
-                <button class="float-right icon-btns" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
+                <button class="copy float-right icon-btns" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
                 </div>
               <%  }) %>
               <% }) %>
