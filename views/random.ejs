@@ -20,7 +20,7 @@
                 <%  number++;  %>
                   <div class="joke-text m-4 p-4 random-joke joke<%= number %>">
                   <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke %></p>
-                  <button class="copy float-right icon-btns" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
+                  <button class="float-right icon-btns" id="id<%= number %>"  onclick="copyElementText(this.id);" value="<%= joke.joke%>" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
                   </div>
                 <%  }) %>
                 <% }) %>

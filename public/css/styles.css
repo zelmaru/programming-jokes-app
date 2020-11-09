@@ -80,7 +80,7 @@ footer {
   position: absolute;
    bottom: 0;
    width: 100%;
-   height: 20rem;
+   height: 25rem;
 }
 
 
@@ -90,20 +90,20 @@ footer {
 
 @media screen and (max-width: 800px) {
   main {
-    padding-bottom: 35rem;
+    padding-bottom: 40rem;
   }
   footer {
-    height: 35rem;
+    height: 40rem;
   }
 }
 
 
 @media screen and (max-width: 600px) {
   main {
-    padding-bottom: 38rem;
+    padding-bottom: 42rem;
   }
   footer {
-    height: 38rem;
+    height: 42rem;
   }
 }
 

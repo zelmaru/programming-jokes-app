@@ -16,6 +16,9 @@ const {
   validationResult
 } = require('express-validator');
 // const { body } = require('express-validator');
+const request = require('request');
+const nodemailer = require("nodemailer");
+
 
 const Schema = mongoose.Schema;
 const app = express();
@@ -317,7 +320,8 @@ app.post('/submit', (req, res) => {
             } else {
               console.log(foundUsers);
               res.render('home', {
-                usersWithJokes: foundUsers, greenFlash: "Your joke was successfully added"
+                usersWithJokes: foundUsers,
+                greenFlash: "Your joke was successfully added"
               });
             }
           })
@@ -327,7 +331,7 @@ app.post('/submit', (req, res) => {
   })
 });
 
-/////////////////////// Edit route  /////////////////////////////////
+/////////////////////// edit /////////////////////////////////
 
 app.get('/edit', (req, res) => {
   if (req.isAuthenticated()) {
@@ -377,7 +381,8 @@ app.post('/update', (req, res) => {
           } else {
             if (foundUser) {
               res.render('edit', {
-                postedJokes: foundUser.jokes, greenFlash: "Changes were successfully saved"
+                postedJokes: foundUser.jokes,
+                greenFlash: "Changes were successfully saved"
               });
             }
           }
@@ -394,7 +399,7 @@ app.post('/update', (req, res) => {
 
 
 
-// ---------- delete --------------WORKING
+// ---------- delete --------------
 
 app.post('/delete', (req, res) => {
   if (req.isAuthenticated()) {
@@ -417,7 +422,8 @@ app.post('/delete', (req, res) => {
           } else {
             if (foundUser) {
               res.render('edit', {
-                postedJokes: foundUser.jokes, greenFlash: "Joke was successfully deleted"
+                postedJokes: foundUser.jokes,
+                greenFlash: "Joke was successfully deleted"
               });
             }
           }
@@ -431,124 +437,204 @@ app.post('/delete', (req, res) => {
   }
 });
 
-
-/////////////////////// Search  /////////////////////////////////
-//
-// app.post('/search', (req, res) => {
-//   const keyword = req.body.keyword;
-//   res.redirect('/search/' + keyword)
-// })
-//
-// app.get('/search/:keyword', (req, res) => {
-//   User.find({
-//     "jokes": {
-//       "$elemMatch": {joke: /req.params.keyword/i }
-//     }
-//   }, (err, foundUsers) => {
-//     if (err) {
-//       console.log(err);
-//     } else {
-//       console.log(foundUsers);
-//       res.render('home', {
-//         usersWithJokes: foundUsers
-//       });
-//     }
-//   })
-//
-// });
-//
-
-
-// find all jokes that contain a particular string
-// app.get("/search/:keyword", (req, res) => {
-//   const keyword = "/" + req.params.keyword + "/i";
-//   User.find({"jokes.joke": {$regex: keyword}},
-//   {"jokes.$": 1}, // add that you need to project
-//   (err, foundJokes) => {
-//     if(err) {
-//       console.log(err);
-//     } else {
-//       console.log(foundJokes);
-//       if(foundJokes) {
-//           res.render('found', {foundJokes: foundJokes});
-//         } else {
-//           res.send("No match found.");
-//         }
-//       }
-//     })
-// });
-//
-
-
-
-//
-// Joke.find({joke: keyword}, (err, foundJokes) => {
-//   if(foundJokes) {
-//     res.render('found', {foundJokes: foundJokes});
-//   } else {
-//     res.send("No match found.");
-//   }
-// })
-
 /////////////////////// random joke /////////////////////////////////
 
 app.get('/random', (req, res) => {
-// find all existing jokes, then in EJS file choose random one to display
-User.find({
-  "jokes": {
-    $ne: null
-  }
-}, (err, foundUsers) => {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log(foundUsers.jokes);
-    res.render('random', {
-      usersWithJokes: foundUsers
-    });
-  }
-})
+  // find all existing jokes, then in EJS file choose random one to display
+  User.find({
+    "jokes": {
+      $ne: null
+    }
+  }, (err, foundUsers) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(foundUsers.jokes);
+      res.render('random', {
+        usersWithJokes: foundUsers
+      });
+    }
+  })
 });
 
-/////////////////////// account settings /////////////////////////////////
-
-app.get('/settings', (req, res) => {
-  if (req.isAuthenticated()) {
-    res.render('settings');
-    // add post on first click, remove on second
-  } else {
-    res.redirect('/login')
-  }
-});
-
-app.post('/settings', (req, res) => {
-  if (req.isAuthenticated()) {
-    // delete Account
-    // add/ change email, username and password
-  } else {
-    res.redirect('/login')
-  }
-});
-
-
-/////////////////////// account settings /////////////////////////////////
-
+/////////////////////// terms /////////////////////////////////
 
 app.get('/terms', (req, res) => {
   res.render('terms');
 })
+
+/////////////////////// log out /////////////////////////////////
 
 app.get('/logout', (req, res) => {
   if (req.isAuthenticated()) {
     req.logout();
     res.redirect('/');
   } else {
-    res.redirect('/login')
+    res.render('login', {
+      flash: "You cannot be logged out, as you were not logged in"
+    });
+  }
+})
+
+app.post('/signup', (req, res) => {
+  const {
+    firstName,
+    lastName,
+    email
+  } = req.body
+  if (!firstName || !lastName || !email) {
+    User.find({
+      "jokes": {
+        $ne: null
+      }
+    }, (err, foundUsers) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log(foundUsers);
+        res.render('failure', {
+          usersWithJokes: foundUsers,
+          signFlash: "All fields are required. Try again."
+        });
+      }
+    })
+    return
   }
 
+  const data = {
+    members: [{
+      email_address: email,
+      status: 'subscribed',
+      merge_fields: {
+        FNAME: firstName,
+        LNAME: lastName
+      }
+    }]
+  }
+
+  const postData = JSON.stringify(data)
+
+  const options = {
+    url: process.env.MAILCHIMP_URL,
+    method: 'POST',
+    headers: {
+      Authorization: process.env.MAILCHIMP_AUTH
+    },
+    body: postData
+  }
+
+  request(options, (err, response, body) => {
+    if (err) {
+      User.find({
+        "jokes": {
+          $ne: null
+        }
+      }, (err, foundUsers) => {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(foundUsers);
+          res.render('failure', {
+            usersWithJokes: foundUsers,
+            signFlash: "Something went wrong. Try again."
+          });
+        }
+      })
+    } else {
+      if (response.statusCode === 200) {
+        User.find({
+          "jokes": {
+            $ne: null
+          }
+        }, (err, foundUsers) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(foundUsers);
+            res.render('success', {
+              usersWithJokes: foundUsers,
+              greenSignFlash: "You were successfully subcribed."
+            });
+          }
+        });
+      } else {
+        User.find({
+          "jokes": {
+            $ne: null
+          }
+        }, (err, foundUsers) => {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(foundUsers);
+            res.render('failure', {
+              usersWithJokes: foundUsers,
+              signFlash: "Something went wrong. Try again."
+            });
+          }
+        })
+      }
+    }
+  })
 })
 
 
+/////////////////////// success /////////////////////////////////
+
+app.get('/success', (req, res) => {
+  res.render('success');
+})
+
+
+/////////////////////// failure /////////////////////////////////
+
+app.get('/failure', (req, res) => {
+  res.render('failure');
+})
+
+
+////////////////////// contact form //////////////////////////////
+
+
+app.get('/contact', (req, res) => {
+  res.render('contact');
+})
+// POST route from contact form
+app.post('/contact', (req, res) => {
+
+
+  let transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_MY_MAIL,
+      pass: process.env.GMAIL_MY_PASSWORD
+    }
+  });
+
+  let mailOptions = {
+    from: req.body.usersEmail,
+    to: process.env.GMAIL_MY_MAIL,
+    subject: 'Programming Jokes - New Message',
+    text: req.body.message
+  }
+
+
+  // send the e-mail
+  transporter.sendMail(mailOptions, (error, data) => {
+    if (error) {
+      console.log(error);
+      res.render('contact', {errFlash: "An error occured. Try again."})
+    }
+    else {
+      res.render('contact', {okFlash: "Your message was successfully sent."})
+    }
+  })
+})
+
+
+///////////////////////// port /////////////////////////////////
+
+const host = '0.0.0.0'
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server started on port ${port}`);

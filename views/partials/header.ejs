@@ -30,7 +30,6 @@
         </li>
         <li class="nav-item p-1">
           <a class="nav-link text-light" href="/random">Get a Random Joke</a>
-
         </li>
         <!-- render different navbar item when user is logged in -->
         <% if(!currentUser){ %>
@@ -41,8 +40,9 @@
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item p-1" href="/login">Log In</a>
               <a class="dropdown-item p-1" href="/register">Register</a>
+              <a class="dropdown-item p-1" href="/terms">Terms</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item p-1" href="/terms">Terms and Conditions</a>
+              <a class="dropdown-item p-1" href="/contact" role="button">Contact&nbsp;&nbsp;<i class="fas fa-envelope"></i></a>
             </div>
             <% } else { %>
         <li class="nav-item dropdown p-1">
@@ -51,10 +51,10 @@
         </a>
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item p-1" href="/edit">Edit Jokes</a>
-          <a class="dropdown-item p-1" href="/settings">Account Settings</a>
+          <a class="dropdown-item p-1" href="/logout">Log Out</a>
           <a class="dropdown-item p-1" href="/terms">Terms</a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item p-1" href="/logout">Log Out</a>
+          <a class="dropdown-item p-1" href="/contact" role="button">Contact&nbsp;&nbsp;<i class="fas fa-envelope"></i></a>
         </div>
         <% } %>
 

@@ -37,9 +37,9 @@
             <%  let arrayOfJokes = user.jokes %>
             <% arrayOfJokes.reverse().forEach((joke) => {  %>
               <%  number++;  %>
-              <div class="joke-text m-4 p-4 id<%= number %>">
-                <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke%></p>
-                <button class="copy float-right icon-btns" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
+              <div class="joke-text m-4 p-4">
+                <p class="joke-copy"><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke%></p>
+                <button class="float-right icon-btns" id="id<%= number %>"  onclick="copyElementText(this.id);" value="<%= joke.joke%>" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
                 </div>
               <%  }) %>
               <% }) %>
@@ -49,6 +49,23 @@
       </div>
     </div>
 
+    <!-- flash messages for newsletter signup -->
+              <%  if (typeof signFlash != "undefined") { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= signFlash %>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+              <%  } %>
 
+<%  if (typeof greenSignFlash != "undefined") { %>
+                          <div class="alert alert-success alert-dismissible fade show" role="alert">
+                          <%= greenSignFlash %>
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                          </button>
+                        </div>
+                        <%  } %>
 
 <%- include('partials/footer') %>

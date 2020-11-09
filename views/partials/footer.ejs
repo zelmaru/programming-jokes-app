@@ -11,22 +11,32 @@
           <li class="nav-item p-1">
             <a class="nav-link text-warning" href="/submit">Submit a joke!</a>
           </li>
-        <li class="nav-item p-1">
-          <a class="nav-link text-light" href="/random">Get a Random Joke</a>
-        </li>
           <li class="nav-item p-1">
-          <a class="nav-link text-light" href="/terms" role="button">Terms and Conditions</a>
+            <a class="nav-link text-light" href="/random">Get a Random Joke</a>
+          </li>
+          <li class="nav-item p-1">
+            <a class="nav-link text-light" href="/terms" role="button">Terms</a>
+          </li>
+          <li class="nav-item p-1">
+            <a class="nav-link text-light" href="/contact" role="button">Contact&nbsp;&nbsp;<i class="fas fa-envelope"></i></a>
           </li>
 
-          </ul>
+        </ul>
       </div>
       <div class="col-md-6 mb-4 bg-warning pt-2">
         <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
           <li class="nav-item p-1">
             <label for="newsletter-form" class="text-dark font-weight-bold">Sign up for your weekly dose of programming humor!</label>
-            <form name="newsletter-form" class="newsletter-form my-2 my-lg-0" action="/newsletter-signup" method="POST">
-              <input type="email" name="email" class="form-control mr-sm-2 input-lg" placeholder="Your email"
-              aria-label="Your email" aria-describedby="basic-addon2">
+            <form name="newsletter-form" class="newsletter-form my-2 my-lg-0" action="/signup" method="POST">
+              <div class="form-row">
+                <div class="col">
+                  <input type="text" name="firstName" class="form-control mr-sm-2 m-1 input-lg" placeholder="Your First Name" aria-label="Your First Name" aria-describedby="basic-addon2">
+                </div>
+                <div class="col">
+                  <input type="text" name="lastName" class="form-control mr-sm-2 m-1 input-lg" placeholder="Your Last Name" aria-label="Your Last Name" aria-describedby="basic-addon2">
+                </div>
+              </div>
+              <input type="email" name="email" class="form-control mr-sm-2 m-1 input-lg" placeholder="Your email" aria-label="Your E-mail" aria-describedby="basic-addon2">
               <button class="btn btn-dark my-2 my-sm-1 float-right" type="submit">Sign up</button>
             </form>
           </li>
@@ -44,4 +54,5 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
 <script src="/js/index.js" charset="utf-8"></script>
 </body>
+
 </html>
