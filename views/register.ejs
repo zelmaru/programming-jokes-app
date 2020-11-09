@@ -1,16 +1,18 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
-<i class="fas fa-user-plus fa-6x"></i>
+<!-- page title -->
+<i class="fas fa-user-plus title-icon"></i>
 <h1>Register</h1>
 <p>Register and be able to submit jokes!</p>
 <hr>
 
+<!-- page content -->
 <div class="row">
   <div class="col-lg-8 mb-3">
     <div class="card">
-      <div class="card-body  text-left">
+      <div class="card-body text-left">
 
-        <!-- dismissable alert for express-validator: loop through the array of alerts -->
+        <!-- alerts for express-validator -->
         <%  if (typeof alert != "undefined") { %>
         <%  alert.forEach((error) => { %>
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -22,8 +24,9 @@
         <%  }) %>
         <%  } %>
 
+        <!-- alert if any mongoose errors present (if the user is already registered)-->
         <%  if (typeof message != "undefined") { %>
-          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
           <%= message %>
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -46,15 +49,14 @@
             <input type="password" class="form-control" name="passwordCheck" placeholder="Your Password Confirmation">
           </div>
           <button type="submit" class="btn btn-lg btn-warning">Register</button>
-          <p class="pl-2 d-inline">Do you already have an account? <a class="link-styled" href="/login">Log in</a></p>
+          <p class="pl-2 d-inline">Already have an account? <a class="link-styled" href="/login">Log in</a></p>
         </form>
-
 
       </div>
     </div>
   </div>
 
-  <!-- register with Google or Facebook -->
+  <!--  Google and Facebook authentification -->
   <div class="col-lg-4">
     <div class="card">
       <div class="card-body">
@@ -73,6 +75,5 @@
   </div>
 
 </div>
-
 
 <%- include('partials/footer') %>

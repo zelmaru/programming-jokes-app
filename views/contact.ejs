@@ -1,45 +1,57 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
-<i class="fas fa-envelope fa-6x"></i>
+<!-- page title -->
+<i class="fas fa-envelope title-icon"></i>
 <h1>Contact</h1>
 <p>Do you have any questions or ideas?</p>
-
 <hr>
 
-<!-- flash messages -->
-
+<!-- success flash messages -->
 <%  if (typeof okFlash != "undefined") { %>
-  <div class="alert alert-success alert-dismissible fade show" role="alert">
-    <%= okFlash %>
-    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <%  } %>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <%= okFlash %>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<% } %>
 
-  <%  if (typeof errFlash != "undefined") { %>
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      <%= errFlash %>
+<!-- failure flash messages -->
+<%  if (typeof errFlash != "undefined") { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <%= errFlash %>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<% } %>
+
+<!-- page content -->
+<div class="jumbotron centered">
+  <div class="container">
+
+    <!-- alerts for express-validator -->
+    <%  if (typeof alert != "undefined") { %>
+    <%  alert.forEach((error) => { %>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <%= error.msg %>
       <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <%  } %>
+    <% }) %>
+    <% } %>
 
-<div class="jumbotron centered">
-  <div class="container">
-
-    <form name="newsletter-form" class="newsletter-form p-4" action="/contact" method="POST">
-      <input type="email" name="usersEmail" class="form-control mr-sm-2 m-1 input-lg" placeholder="Your email">
-      <textarea class="form-control mr-sm-2 m-1 input-lg" name="message" rows="8" cols="80" placeholder="Your Message"></textarea>
+    <!-- contact form -->
+    <form name="contact-form" class="yellow-form p-4" action="/contact" method="POST" novalidate>
+      <div class="form-group">
+        <input type="email" class="form-control m-1" name="usersEmail" placeholder="Your E-mail">
+        <textarea class="form-control m-1" name="message" rows="8" cols="50" placeholder="Your Message"></textarea>
+      </div>
       <button class="btn btn-lg btn-dark" type="submit">Send</button>
     </form>
 
-
-
-
   </div>
 </div>
-
 
 <%- include('partials/footer') %>

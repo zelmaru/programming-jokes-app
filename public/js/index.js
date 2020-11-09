@@ -1,5 +1,6 @@
 // tooltips
 $(document).ready(function(){
+  window.history.replaceState('','',window.location.href)
   $('[data-toggle="tooltip"]').tooltip();
 });
 

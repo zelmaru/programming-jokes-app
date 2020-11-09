@@ -1,46 +1,47 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
-    <i class="fas fa-random fa-6x"></i>
+<!-- page title -->
+    <i class="fas fa-random title-icon"></i>
     <h1>Your random joke</h1>
     <p>Generate another random joke on each click</p>
     <a class="btn btn-warning btn-lg" href="/random">Get another one!</a>
     <hr>
+
+    <!-- page content -->
     <div class="jumbotron centered">
       <div class="container">
 
         <%  if (typeof usersWithJokes != "undefined") { %>
           <!-- Loop through an array of jokes to get the contents -->
             <% usersWithJokes.forEach((user) => { %>
-              <!--add a class with a number of order to each joke
-            give all of the jokes an hidden attribute
-          remove the hidden attribute from a random joke-->
-            <%  let number = 0;  %>
+            <!--Then use JS to hide all jokes except for the one randomly chosen -->
+            <!-- joke ID starts counting from 0 -->
+              <%  let number = 0;  %>
               <%  let arrayOfJokes = user.jokes %>
               <% arrayOfJokes.forEach((joke) => {  %>
                 <%  number++;  %>
-                  <div class="joke-text m-4 p-4 random-joke joke<%= number %>">
+                  <div class="joke-text m-4 p-4 random-joke">
                   <p><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke %></p>
-                  <button class="float-right icon-btns" id="id<%= number %>"  onclick="copyElementText(this.id);" value="<%= joke.joke%>" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
+                  <!-- copy joke text using its id -->
+                  <button class="float-right icon-btns" id="id<%= number %>" onclick="copyElementText(this.id);" value="<%= joke.joke%>" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
                   </div>
                 <%  }) %>
                 <% }) %>
-      <%    } else { %>
-            <p>No jokes yet. Be the first to post.</p>
-        <%  } %>
+                <% } else { %>
+                  <p>No jokes yet. Be the first to post.</p>
+                  <%  } %>
           </div>
     </div>
 
 <script type="text/javascript">
-
+  <!-- get random joke -->
   let myJokes = document.querySelectorAll(".random-joke");
   let ranN = Math.floor(Math.random()*myJokes.length);
   for (let i = 0; i < myJokes.length; i++) {
 if (i != ranN) {
     myJokes[i].style.display = "none";
  }
-
 }
-
 </script>
 
 

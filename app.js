@@ -6,8 +6,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
-// no need to write require passport-local: it is one of dependencies needed by passport-local-mongoose
-// const LocalStrategy = require('passport-local').Strategy;
+// passport-local is already one of the dependencies for passport-local-mongoose
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 const FacebookStrategy = require('passport-facebook').Strategy;
@@ -15,16 +14,14 @@ const {
   check,
   validationResult
 } = require('express-validator');
-// const { body } = require('express-validator');
 const request = require('request');
 const nodemailer = require("nodemailer");
 
 
-const Schema = mongoose.Schema;
 const app = express();
 
 app.use(express.static(__dirname + "/public"));
-// app.use(express.json());
+
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({
   extended: true
@@ -33,7 +30,7 @@ const urlencodedParser = bodyParser.urlencoded({
   extended: false
 });
 
-// initialize express-session code below app.use and above mongoose.connect
+// initialize express-session
 
 app.use(session({
   secret: process.env.SESSION_SECRET,
@@ -56,18 +53,23 @@ mongoose.connect('mongodb://localhost:27017/jokesDB', {
   useFindAndModify: false
 });
 
+const Schema = mongoose.Schema;
+
 const jokeSchema = new Schema({
   joke: {
     type: String,
-    required: true
-  }
+    required: true,
+    unique: true
+  },
+  timestamp: {type: Date, default: Date.now }
 });
 
 const Joke = new mongoose.model('Joke', jokeSchema)
 
 const userSchema = new Schema({ // change the Schema into a full mongose schema
   email: {
-    type: String
+    type: String,
+    unique: true
   },
   password: String,
   googleId: String,
@@ -114,7 +116,7 @@ passport.use(new GoogleStrategy({
     userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo'
   },
   function(accessToken, refreshToken, profile, cb) {
-    console.log(profile);
+    // console.log(profile);
     User.findOrCreate({
       googleId: profile.id
     }, function(err, user) {
@@ -154,8 +156,7 @@ app.get('/', (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      console.log(foundUsers);
-      res.render('home', {
+        res.render('home', {
         usersWithJokes: foundUsers
       });
     }
@@ -318,8 +319,7 @@ app.post('/submit', (req, res) => {
             if (err) {
               console.log(err);
             } else {
-              console.log(foundUsers);
-              res.render('home', {
+                res.render('home', {
                 usersWithJokes: foundUsers,
                 greenFlash: "Your joke was successfully added"
               });
@@ -449,8 +449,7 @@ app.get('/random', (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      console.log(foundUsers.jokes);
-      res.render('random', {
+        res.render('random', {
         usersWithJokes: foundUsers
       });
     }
@@ -470,13 +469,12 @@ app.get('/logout', (req, res) => {
     req.logout();
     res.redirect('/');
   } else {
-    res.render('login', {
-      flash: "You cannot be logged out, as you were not logged in"
-    });
+    res.redirect('/');
   }
 })
 
 app.post('/signup', (req, res) => {
+
   const {
     firstName,
     lastName,
@@ -491,8 +489,7 @@ app.post('/signup', (req, res) => {
       if (err) {
         console.log(err);
       } else {
-        console.log(foundUsers);
-        res.render('failure', {
+          res.render('failure', {
           usersWithJokes: foundUsers,
           signFlash: "All fields are required. Try again."
         });
@@ -533,7 +530,6 @@ app.post('/signup', (req, res) => {
         if (err) {
           console.log(err);
         } else {
-          console.log(foundUsers);
           res.render('failure', {
             usersWithJokes: foundUsers,
             signFlash: "Something went wrong. Try again."
@@ -550,7 +546,6 @@ app.post('/signup', (req, res) => {
           if (err) {
             console.log(err);
           } else {
-            console.log(foundUsers);
             res.render('success', {
               usersWithJokes: foundUsers,
               greenSignFlash: "You were successfully subcribed."
@@ -566,7 +561,6 @@ app.post('/signup', (req, res) => {
           if (err) {
             console.log(err);
           } else {
-            console.log(foundUsers);
             res.render('failure', {
               usersWithJokes: foundUsers,
               signFlash: "Something went wrong. Try again."
@@ -600,8 +594,24 @@ app.get('/contact', (req, res) => {
   res.render('contact');
 })
 // POST route from contact form
-app.post('/contact', (req, res) => {
+app.post('/contact', urlencodedParser, [
+check('usersEmail')
+.isEmail().withMessage("E-mail must be a valid e-mail address")
+.normalizeEmail(),
+check('message')
+.isLength({
+  min: 10
+}).withMessage('Message must be at least 10 characters long')
 
+], (req, res) => {
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const alert = errors.array();
+    res.render('contact', {
+      alert: alert
+    })
+  }
 
   let transporter = nodemailer.createTransport({
     service: 'gmail',

@@ -5,34 +5,44 @@
   <meta charset="utf-8">
   <title>Programming Jokes</title>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<link rel="stylesheet" href="/css/bootstrap-social.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/bootstrap-social.css">
   <link rel="stylesheet" href="/css/styles.css">
-<script src="/js/index.js" charset="utf-8"></script>
+  <script src="/js/index.js" charset="utf-8"></script>
 </head>
 
 <body>
-<main>
+  <main>
 
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <a class="navbar-brand p-1" href="/"><h3><i class="fas fa-terminal text-warning"></i>&nbsp;Programming Jokes</h3></a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-      <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-        <li class="nav-item p-1">
-          <a class="nav-link text-light" href="/">All Jokes<span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item p-1">
-          <a class="btn btn-warning" href="/submit">Submit a Joke!</a>
-        </li>
-        <li class="nav-item p-1">
-          <a class="nav-link text-light" href="/random">Get a Random Joke</a>
-        </li>
-        <!-- render different navbar item when user is logged in -->
-        <% if(!currentUser){ %>
+      <a class="navbar-brand p-1" href="/">
+        <h3 class="logo"><i class="fas fa-terminal text-warning"></i>&nbsp;Programming Jokes</h3>
+      </a>
+
+      <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+        <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+          <li class="nav-item dropdown p-1">
+            <a class="nav-link text-light dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Jokes
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item p-1" href="/">All Jokes<span class="sr-only">(current)</span></a>
+              <a class="dropdown-item p-1" href="/random">Get a Random Joke</a>
+            </div>
+          <li class="nav-item p-1">
+            <a class="btn btn-warning" href="/submit">Submit a Joke!</a>
+          </li>
+          <li class="nav-item p-1">
+            <a class="nav-link text-light" href="/contact">Contact</a>
+          </li>
+
+          <!-- render different dropdown depending on if user is/is not logged in -->
+          <% if(!currentUser){ %>
           <li class="nav-item dropdown p-1">
             <a class="nav-link text-light dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <i class="far fa-user"></i>&nbsp;Not Logged In
@@ -40,34 +50,27 @@
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item p-1" href="/login">Log In</a>
               <a class="dropdown-item p-1" href="/register">Register</a>
-              <a class="dropdown-item p-1" href="/terms">Terms</a>
               <div class="dropdown-divider"></div>
-              <a class="dropdown-item p-1" href="/contact" role="button">Contact&nbsp;&nbsp;<i class="fas fa-envelope"></i></a>
+              <a class="dropdown-item p-1" href="/terms">Terms</a>
             </div>
+
             <% } else { %>
-        <li class="nav-item dropdown p-1">
-        <a class="nav-link text-light dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="fas fa-user"></i>&nbsp;Logged In
-        </a>
-        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-          <a class="dropdown-item p-1" href="/edit">Edit Jokes</a>
-          <a class="dropdown-item p-1" href="/logout">Log Out</a>
-          <a class="dropdown-item p-1" href="/terms">Terms</a>
-          <div class="dropdown-divider"></div>
-          <a class="dropdown-item p-1" href="/contact" role="button">Contact&nbsp;&nbsp;<i class="fas fa-envelope"></i></a>
-        </div>
-        <% } %>
+          <li class="nav-item dropdown p-1">
+            <a class="nav-link text-light dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="fas fa-user"></i>&nbsp;Logged In
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item p-1" href="/edit">Edit Jokes</a>
+              <a class="dropdown-item p-1" href="/logout">Log Out</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item p-1" href="/terms">Terms</a>
+            </div>
+            <% } %>
+          </li>
 
-
-      </li>
-
-<!--
-
-        <li class="nav-item p-1">
-        <a class="nav-link text-light" href="/logout" role="button">Log Out</a>
-        </li> -->
         </ul>
-    </div>
-  </nav>
-  <div class="jumbotron centered">
-    <div class="container">
+      </div>
+      </div>
+    </nav>
+    <div class="jumbotron centered">
+      <div class="container">

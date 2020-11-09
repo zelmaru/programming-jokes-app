@@ -14,6 +14,10 @@ main {
   padding-bottom: 25rem;    /* Footer height */
 }
 
+.title-icon {
+  font-size: 4rem;
+}
+
 .jumbotron {
   background: transparent !important;
 }
@@ -74,7 +78,8 @@ outline: none;
 .link-styled {
   text-decoration: underline;
   color: #212529;
-}
+  font-weight: bold;
+  }
 
 footer {
   position: absolute;
@@ -84,16 +89,21 @@ footer {
 }
 
 
-.newsletter-form {
+.yellow-form {
   background: #FFC107;
 }
 
-@media screen and (max-width: 800px) {
+@media screen and (max-width: 767px) {
   main {
     padding-bottom: 40rem;
   }
+  .container, .jumbotron {
+    padding-left: 0;
+    padding-right: 0;
+  }
   footer {
     height: 40rem;
+    padding: 3rem;
   }
 }
 
@@ -102,28 +112,14 @@ footer {
   main {
     padding-bottom: 42rem;
   }
-  footer {
-    height: 42rem;
-  }
-}
-
-/*
-@media screen and (max-width: 300px) {
-  h1 {
+  .logo {
     font-size: 1.5rem;
   }
-  .container {
-    max-width: 100%;
-    padding-right: 0;
-    padding-left: 0;
-  }
-  .jumbotron {
-    padding: 0;
-  }
-  main {
-    padding-bottom: 45rem;
+  .title-icon {
+    font-size: 3rem;
   }
   footer {
-    height: 45rem;
+    height: 42rem;
+    padding: 1rem;
   }
-} */
+}

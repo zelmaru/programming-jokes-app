@@ -1,84 +1,87 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
 
-<!-- flash message -->
-          <%  if (typeof flash != "undefined") { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <%= flash %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <%  } %>
+<!-- flash message - red-->
+<%  if (typeof flash != "undefined") { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <%= flash %>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<%  } %>
 
-  <i class="page-logo fas fa-user-check fa-6x"></i>
-  <h1>Log In</h1>
-  <p>Only authenticated users can submit jokes.</p>
-  <hr>
+<!-- page title -->
+<i class="fas fa-user-check title-icon"></i>
+<h1>Log In</h1>
+<p>Only authenticated users can submit jokes.</p>
+<hr>
 
-  <div class="row">
-    <div class="col-lg-8 mb-3">
-      <div class="card">
-        <div class="card-body text-left">
+<!-- page content -->
+<div class="row">
+  <div class="col-lg-8 mb-3">
+    <div class="card">
+      <div class="card-body text-left">
 
-          <!-- dismissable alert for express-validator: loop through the array of alerts -->
-          <%  if (typeof alert != "undefined") { %>
-          <%  alert.forEach((error) => { %>
-          <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <%= error.msg %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <%  }) %>
-          <%  } %>
-
-          <%  if (typeof message != "undefined") { %>
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-            <%= message %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <%  } %>
-
-          <!-- set the novalidate attribute to an HTML form to unblock express-validator's alerts-->
-          <form action="/login" method="POST" novalidate>
-            <div class="form-group">
-              <label for="email">E-mail</label>
-              <input type="email" class="form-control" name="username" placeholder="Your Email">
-            </div>
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" class="form-control" name="password" placeholder="Your Password">
-            </div>
-            <button type="submit" class="btn btn-lg btn-warning">Login</button>
-            <p class="pl-2 d-inline">Do you not have an account yet? <a class="link-styled" href="/register">Register</a></p>
-          </form>
-
-
+        <!-- alerts for express-validator -->
+        <%  if (typeof alert != "undefined") { %>
+        <%  alert.forEach((error) => { %>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <%= error.msg %>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        <%  }) %>
+        <%  } %>
+
+        <!-- alert if any mongoose errors present -->
+        <%  if (typeof message != "undefined") { %>
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <%= message %>
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <%  } %>
+
+        <!-- set the novalidate attribute to an HTML form to unblock express-validator's alerts-->
+            <form action="/login" method="POST" novalidate>
+          <div class="form-group">
+            <label for="email">E-mail</label>
+            <input type="email" class="form-control" name="username" placeholder="Your Email">
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" name="password" placeholder="Your Password">
+          </div>
+          <button type="submit" class="btn btn-lg btn-warning">Login</button>
+          <p class="pl-2 d-inline">No account yet? <a class="link-styled p-1 text-dark" href="/register">Register</a></p>
+        </form>
+
       </div>
     </div>
-
-    <div class="col-lg-4">
-      <div class="card">
-        <div class="card-body">
-          <a class="btn btn-block btn-social btn-google" href="/auth/google" role="button">
-            <i class="fab fa-google"></i>
-            Sign In with Google
-          </a>
-        </div>
-        <div class="card-body">
-          <a class="btn btn-block btn-social btn-facebook" href="/auth/facebook" role="button">
-            <i class="fab fa-facebook-f"></i>
-            Sign In with Facebook
-          </a>
-        </div>
-      </div>
-    </div>
-
   </div>
+
+  <!-- Google and Facebook authentification -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-body">
+        <a class="btn btn-block btn-social btn-google" href="/auth/google" role="button">
+          <i class="fab fa-google"></i>
+          Sign In with Google
+        </a>
+      </div>
+      <div class="card-body">
+        <a class="btn btn-block btn-social btn-facebook" href="/auth/facebook" role="button">
+          <i class="fab fa-facebook-f"></i>
+          Sign In with Facebook
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
 </div>
 
 <%- include('partials/footer') %>

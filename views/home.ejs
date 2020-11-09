@@ -1,71 +1,54 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
-<!-- flash message -->
-          <%  if (typeof flash != "undefined") { %>
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <%= flash %>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <%  } %>
+<!-- flash message - red -->
+<%  if (typeof flash != "undefined") { %>
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <%= flash %>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<%  } %>
 
-          <!-- flash message -->
-                    <%  if (typeof greenFlash != "undefined") { %>
-                      <div class="alert alert-success alert-dismissible fade show" role="alert">
-                      <%= greenFlash %>
-                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <%  } %>
+<!-- flash message - green -->
+<%  if (typeof greenFlash != "undefined") { %>
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+  <%= greenFlash %>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<%  } %>
 
-    <i class="fas fa-laptop-code fa-6x"></i>
-    <h1>Programming Jokes</h1>
-    <p>Know a good programming joke? Share it!</p>
-    <a class="btn btn-warning btn-lg" href="/submit">Submit a joke!</a>
-    <hr>
-    <div class="jumbotron centered">
-      <div class="container">
+<!-- page title -->
+<i class="fas fa-laptop-code title-icon"></i>
+<h1>Programming Jokes</h1>
+<p>Know a good programming joke? Share it!</p>
+<a class="btn btn-warning btn-lg" href="/submit">Submit a joke!</a>
+<hr>
+<div class="jumbotron centered">
+  <div class="container">
+
+    <!-- page content -->
 
     <!-- Include an if-else statement for the case if there are no jokes posted yet (else) -->
-    <!-- the user after classical login did not get rendered the page, because the usersWithJokes was undefined -->
-      <%  if (typeof usersWithJokes != "undefined") { %>
-        <!-- Loop through an array of jokes to get the contents -->
-          <% usersWithJokes.forEach((user) => { %>
-            <%  let number = 0;  %>
-            <%  let arrayOfJokes = user.jokes %>
-            <% arrayOfJokes.reverse().forEach((joke) => {  %>
-              <%  number++;  %>
-              <div class="joke-text m-4 p-4">
-                <p class="joke-copy"><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke%></p>
-                <button class="float-right icon-btns" id="id<%= number %>"  onclick="copyElementText(this.id);" value="<%= joke.joke%>" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
-                </div>
-              <%  }) %>
-              <% }) %>
-    <%    } else { %>
-          <p>No jokes yet. Be the first to post.</p>
-      <%  } %>
-      </div>
+    <%  if (typeof usersWithJokes != "undefined") { %>
+    <!-- Loop through an array of jokes to get the contents -->
+    <% usersWithJokes.forEach((user) => { %>
+    <%  let number = 0;  %>
+    <%  let arrayOfJokes = user.jokes %>
+    <% arrayOfJokes.reverse().forEach((joke) => {  %>
+    <%  number++;  %>
+    <div class="joke-text m-4 p-4">
+      <p class="joke-copy"><i class="fas fa-terminal text-warning"></i>&nbsp;&nbsp;<%= joke.joke%></p>
+      <button class="float-right icon-btns" id="id<%= number %>" onclick="copyElementText(this.id);" value="<%= joke.joke%>" data-toggle="tooltip" data-placement="bottom" title="Copy to clipboard"><i class="far fa-copy icon-btns-icons"></i></button>
     </div>
-
-    <!-- flash messages for newsletter signup -->
-              <%  if (typeof signFlash != "undefined") { %>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <%= signFlash %>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <%  } %>
-
-<%  if (typeof greenSignFlash != "undefined") { %>
-                          <div class="alert alert-success alert-dismissible fade show" role="alert">
-                          <%= greenSignFlash %>
-                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                          </button>
-                        </div>
-                        <%  } %>
+    <%  }) %>
+    <% }) %>
+    <%    } else { %>
+    <p>No jokes yet. Be the first to post.</p>
+    <%  } %>
+  </div>
+</div>
 
 <%- include('partials/footer') %>

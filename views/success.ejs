@@ -1,9 +1,11 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
-<i class="fas fa-check-circle fa-6x"></i>
+<!-- page title -->
+<i class="fas fa-check-circle title-icon"></i>
 <h1>Success</h1>
 <p>Congratulations!</p>
 
+<!-- page content -->
 <hr>
 <div class="jumbotron centered">
   <div class="container">
@@ -11,8 +13,7 @@
   </div>
 </div>
 
-<!-- flash messages for newsletter signup -->
-
+<!-- success flash messages for newsletter signup -->
 <%  if (typeof greenSignFlash != "undefined") { %>
 <div class="alert alert-success alert-dismissible fade show" role="alert">
   <%= greenSignFlash %>

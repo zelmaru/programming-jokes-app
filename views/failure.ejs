@@ -1,16 +1,18 @@
 <%- include('partials/header', {currentUser: currentUser}) %>
 
-<i class="fas fa-exclamation-circle fa-6x"></i>
+<!-- page title -->
+<i class="fas fa-exclamation-circle title-icon"></i>
 <h1>Failure</h1>
 <p>Something went wrong.</p>
 
+<!-- page content -->
 <hr>
 <div class="jumbotron centered">
   <div class="container">
   </div>
 </div>
 
-<!-- flash messages for newsletter signup -->
+<!-- flash messages for newsletter signup failure -->
 <%  if (typeof signFlash != "undefined") { %>
 <div class="alert alert-danger alert-dismissible fade show" role="alert">
   <%= signFlash %>
